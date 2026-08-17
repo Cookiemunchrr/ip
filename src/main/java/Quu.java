@@ -1,5 +1,6 @@
 import java.util.Scanner;
 public class Quu {
+    private static final String NAME = "Quu";
     public static void main(String[] args) {
         String banner = "  ___\n"
                 + " / _ \\ _   _ _   _\n"
@@ -8,17 +9,16 @@ public class Quu {
                 + " \\__\\_\\\\__,_|\\__,_|\n";
         System.out.println(banner);
 
-        String greeting = String.format("Hello! I'm %s.%nWhat can I do for you?%n", "Quu");
+        String greeting = String.format("Hello! I'm %s.%nWhat can I do for you?%n", NAME);
         System.out.println(greeting);
 
-        while (true) {
-            Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNextLine()) {
             String input = scanner.nextLine();
             if (input.equals("bye")) {
                 break;
-            } else {
-                System.out.println(input);
             }
+            System.out.println(input);
         }
         String exit = "Bye. Hope to see you again soon!";
         System.out.println(exit);
