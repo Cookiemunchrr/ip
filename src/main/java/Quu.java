@@ -5,14 +5,34 @@ public class Quu {
     private static final String NAME = "Quu";
     private static int itemNum = 0;
 
-    private static String parseEvent(Map<Integer, Task> todoList, String[] parts) {
-        String invalid_event_command_response = "format as event <task> /from <start> /to <end>";
-        if (parts.length < 2) return invalid_event_command_response;
-        String[] e = parts[1].split(" /from ", 2);
-        if (e.length < 2) return invalid_event_command_response;
-        String[] t = e[1].split(" /to ", 2);
-        if (t.length < 2) return invalid_event_command_response;
-        return add_to_list(todoList, new Event(e[0], t[0], t[1]));
+    private static String parseEvent(Map<Integer, Task> todoList, String[] parts) throws MissingArgumentException{
+        try{
+            String[] e = parts[1].split(" /from ", 2);
+            String[] t = e[1].split(" /to ", 2);
+            return add_to_list(todoList, new Event(e[0], t[0], t[1]));
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new MissingArgumentException(parts[0] + " <task> /from <start> /to <end>");
+        }
+    }
+
+    private static String parseToDo(Map<Integer, Task> todoList, String[] parts) throws MissingArgumentException{
+        try{
+            if (parts[1].trim().isEmpty()){
+                throw new MissingArgumentException(parts[0] + " <task>");
+            }
+            return add_to_list(todoList, new ToDo(parts[1]));
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new MissingArgumentException(parts[0] + " <task>");
+        }
+    }
+
+    private static String parseDeadline(Map<Integer, Task> todoList, String[] parts) throws MissingArgumentException{
+        try{
+            String[] d = parts[1].split(" /by ", 2);
+            return add_to_list(todoList, new Deadline(d[0], d[1]));
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new MissingArgumentException(parts[0] + " <task> /by <time>");
+        }
     }
 
     public static String add_to_list(Map<Integer, Task> todoList, Task task){
@@ -31,31 +51,35 @@ public class Quu {
         return response;
     }
 
-    public static String mark_items(Map<Integer, Task> todoList, String item_index){
+    public static String mark_items(Map<Integer, Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
         try {
-            int index = Integer.parseInt(item_index);
+            int index = Integer.parseInt(parts[1]);
             Task task = todoList.get(index);
             if (task == null){
-                return "Invalid task";
+                throw new TaskNotFoundException(index);
             }
             task.mark();
             return String.format("Nice! I've marked this task as done:%n %s", task);
         } catch (NumberFormatException e) {
-            return "Not a task number";
+            throw new InvalidIndexException(parts[1]);
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new MissingArgumentException(parts[0] + " <task number>");
         }
     }
 
-    public static String unmark_items(Map<Integer, Task> todoList, String item_index){
+    public static String unmark_items(Map<Integer, Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
         try {
-            int index = Integer.parseInt(item_index);
+            int index = Integer.parseInt(parts[1]);
             Task task = todoList.get(index);
-            if (task == null){
-                return "Invalid task";
+            if (task == null) {
+                throw new TaskNotFoundException(index);
             }
             task.unmark();
             return String.format("OK, I've marked this task as not done yet:%n %s", task);
         } catch (NumberFormatException e) {
-            return "Not a task number";
+            throw new InvalidIndexException(parts[1]);
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new MissingArgumentException(parts[0] + " <task number>");
         }
     }
 
@@ -81,52 +105,37 @@ public class Quu {
             String[] parts = input.split(" ", 2);
             String command = parts[0];
             String response;
-            switch(command){
-                case "list": {
-                    response = list_items(todoList);
-                    break;
-                }
-                case "mark": {
-                    response = parts.length < 2
-                            ? "Which task?"
-                            : mark_items(todoList, parts[1]);
-                    break;
-                }
-                case "unmark": {
-                    response = parts.length < 2
-                            ? "Which task?"
-                            : unmark_items(todoList, parts[1]);
-                    break;
-                }
-                case "todo": {
-                    if (parts.length < 2){
-                        response = "format as todo <task>";
-                    } else {
-                        Task task = new ToDo(parts[1]);
-                        response = add_to_list(todoList, task);
+            try {
+                switch (command) {
+                    case "list": {
+                        response = list_items(todoList);
+                        break;
                     }
-                    break;
-                }
-                case "deadline": {
-                    String invalid_deadline_command_response = "format as deadline <task> /by <time>";
-                    if (parts.length < 2) {
-                        response = invalid_deadline_command_response;
-                    } else {
-                        String[] d = parts[1].split(" /by ", 2);
-                        if (d.length < 2){
-                            response = invalid_deadline_command_response;
-                        } else {
-                            Task task = new Deadline(d[0], d[1]);
-                            response = add_to_list(todoList, task);
-                        }
+                    case "mark": {
+                        response = mark_items(todoList, parts);
+                        break;
                     }
-                    break;
+                    case "unmark": {
+                        response = unmark_items(todoList, parts);
+                        break;
+                    }
+                    case "todo": {
+                        response = parseToDo(todoList, parts);
+                        break;
+                    }
+                    case "deadline": {
+                        response = parseDeadline(todoList, parts);
+                        break;
+                    }
+                    case "event": {
+                        response = parseEvent(todoList, parts);
+                        break;
+                    }
+                    default:
+                        throw new UnknownCommandException(parts[0]);
                 }
-                case "event": {
-                    response = parseEvent(todoList, parts);
-                    break;
-                }
-                default: response = "Invalid command";
+            } catch (QuuException e){
+                response = e.getMessage();
             }
             System.out.println(response);
 
