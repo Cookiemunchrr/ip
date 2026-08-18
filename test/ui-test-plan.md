@@ -207,7 +207,7 @@ Here are the tasks in your list:
 
 ## TC-09 — Mark an out-of-range index
 
-**Aim:** An index with no matching task is reported, not crashed on.
+**Aim:** An index with no matching task raises `TaskNotFoundException`, reported to the user rather than crashing.
 
 **Source:** project convention — not specified by the iP.
 
@@ -217,70 +217,123 @@ Got it. I've added this task:
 [T][ ] read book
 Now you have 1 tasks in the list.
 > mark 99
-Invalid task
+There's no task at 99 use list to check available tasks.
 ```
 
 ---
 
 ## TC-10 — Mark a non-numeric index
 
-**Aim:** A non-numeric argument is reported, not crashed on.
+**Aim:** A non-numeric argument raises `InvalidIndexException`, quoting back what the user typed.
 
 **Source:** project convention — not specified by the iP.
 
 ```session
 > mark abc
-Not a task number
+"abc" isn't a task number
 ```
 
 ---
 
 ## TC-11 — Mark with no argument
 
-**Aim:** A bare `mark` with no argument is reported, not crashed on. Regression guard for the `parts[1]` out-of-bounds crash.
+**Aim:** A bare `mark` reports the expected format instead of crashing. Regression guard for the `parts[1]` out-of-bounds access in the switch.
 
 **Source:** project convention — not specified by the iP.
 
 ```session
 > mark
-Which task?
+Invalid format. Please follow this format: mark <task number>
 ```
 
 ---
 
-## TC-12 — Unrecognised command
+## TC-12 — Unmark with no argument
 
-**Aim:** Input that is not a known command is rejected rather than silently stored as a task.
+**Aim:** A bare `unmark` reports the expected format instead of crashing. Companion to TC-11; the two commands share the same argument handling and have drifted apart before.
+
+**Source:** project convention — not specified by the iP.
+
+```session
+> unmark
+Invalid format. Please follow this format: unmark <task number>
+```
+
+---
+
+## TC-13 — Unrecognised command
+
+**Aim:** Input that is not a known command raises `UnknownCommandException` rather than being stored as a task.
 
 **Source:** project convention — not specified by the iP.
 
 ```session
 > blah
-Invalid command
+I don't know what "blah" does
 ```
 
 ---
 
-## TC-13 — Malformed deadline
+## TC-14 — Todo with no description
 
-**Aim:** A `deadline` missing its `/by` clause reports the expected format.
+**Aim:** A bare `todo` raises `MissingArgumentException` showing the expected format.
+
+**Source:** project convention — not specified by the iP.
+
+```session
+> todo
+Invalid format. Please follow this format: todo <task>
+```
+
+---
+
+## TC-15 — Malformed deadline
+
+**Aim:** A `deadline` missing its `/by` clause raises `MissingArgumentException` showing the expected format.
 
 **Source:** project convention — not specified by the iP.
 
 ```session
 > deadline return book
-format as deadline <task> /by <time>
+Invalid format. Please follow this format: deadline <task> /by <time>
 ```
 
 ---
 
-## TC-14 — Malformed event
+## TC-16 — Malformed event
 
-**Aim:** An `event` missing its `/to` clause reports the expected format.
+**Aim:** An `event` missing its `/to` clause raises `MissingArgumentException` showing the expected format.
 
 **Source:** project convention — not specified by the iP.
 
 ```session
 > event project meeting /from Mon 2pm
-format as event <task> /from <start> /to <end>
+Invalid format. Please follow this format: event <task> /from <start> /to <end>
+```
+
+---
+
+## TC-17 — An error does not consume a task number
+
+**Aim:** A failed command must not advance the task counter. Guards against the counter tracking inputs rather than successful additions, now that errors take a different path through the switch.
+
+**Source:** iP spec, Level 4 (implied by `mark N` addressing listed positions).
+
+```session
+> todo read book
+Got it. I've added this task:
+[T][ ] read book
+Now you have 1 tasks in the list.
+> blah
+I don't know what "blah" does
+> mark 99
+There's no task at 99 use list to check available tasks.
+> todo return book
+Got it. I've added this task:
+[T][ ] return book
+Now you have 2 tasks in the list.
+> list
+Here are the tasks in your list:
+1.[T][ ] read book
+2.[T][ ] return book
 ```
