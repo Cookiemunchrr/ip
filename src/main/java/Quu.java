@@ -1,11 +1,9 @@
 import java.util.Scanner;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 public class Quu {
     private static final String NAME = "Quu";
-    private static int itemNum = 0;
-
-    private static String parseEvent(Map<Integer, Task> todoList, String[] parts) throws MissingArgumentException{
+    private static String parseEvent(List<Task> todoList, String[] parts) throws MissingArgumentException{
         try{
             String[] e = parts[1].split(" /from ", 2);
             String[] t = e[1].split(" /to ", 2);
@@ -15,7 +13,7 @@ public class Quu {
         }
     }
 
-    private static String parseToDo(Map<Integer, Task> todoList, String[] parts) throws MissingArgumentException{
+    private static String parseToDo(List<Task> todoList, String[] parts) throws MissingArgumentException{
         try{
             if (parts[1].trim().isEmpty()){
                 throw new MissingArgumentException(parts[0] + " <task>");
@@ -26,7 +24,7 @@ public class Quu {
         }
     }
 
-    private static String parseDeadline(Map<Integer, Task> todoList, String[] parts) throws MissingArgumentException{
+    private static String parseDeadline(List<Task> todoList, String[] parts) throws MissingArgumentException{
         try{
             String[] d = parts[1].split(" /by ", 2);
             return add_to_list(todoList, new Deadline(d[0], d[1]));
@@ -35,29 +33,44 @@ public class Quu {
         }
     }
 
-    public static String add_to_list(Map<Integer, Task> todoList, Task task){
-        itemNum += 1;
-        todoList.put(itemNum, task);
+    public static String add_to_list(List<Task> todoList, Task task){
+        todoList.add(task);
         return String.format("Got it. I've added this task:%n  %s%nNow you have %d tasks in the list.",
                 task, todoList.size());
     }
 
-    public static String list_items(Map<Integer, Task> todoList){
+    public static String remove_from_list(List<Task> todoList, String[] parts) throws TaskNotFoundException, InvalidIndexException, MissingArgumentException{
+        try {
+            int index = Integer.parseInt(parts[1]);
+            if (index < 1 || index > todoList.size()) {
+                throw new TaskNotFoundException(index);
+            }
+            Task task = todoList.remove(index - 1);
+            return String.format("Noted. I've removed this task:%n %s%nNow you have %d tasks in the list.", task, todoList.size());
+        } catch (NumberFormatException e) {
+            throw new InvalidIndexException(parts[1]);
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new MissingArgumentException(parts[0] + " <task number>");
+        }
+    }
+
+    public static String list_items(List<Task> todoList){
         String response = String.format("Here are the tasks in your list:");
-        for (Map.Entry<Integer, Task> e: todoList.entrySet()) {
-            String item_string = String.format("%n%d.%s", e.getKey(), e.getValue().toString());
+        for (int i = 0; i < todoList.size(); i++) {
+            Task task = todoList.get(i);
+            String item_string = String.format("%n%d.%s", i+1, task.toString());
             response += item_string;
         }
         return response;
     }
 
-    public static String mark_items(Map<Integer, Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
+    public static String mark_items(List<Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
         try {
             int index = Integer.parseInt(parts[1]);
-            Task task = todoList.get(index);
-            if (task == null){
+            if (index < 1 || index > todoList.size()) {
                 throw new TaskNotFoundException(index);
             }
+            Task task = todoList.get(index - 1);
             task.mark();
             return String.format("Nice! I've marked this task as done:%n %s", task);
         } catch (NumberFormatException e) {
@@ -67,13 +80,13 @@ public class Quu {
         }
     }
 
-    public static String unmark_items(Map<Integer, Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
+    public static String unmark_items(List<Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
         try {
             int index = Integer.parseInt(parts[1]);
-            Task task = todoList.get(index);
-            if (task == null) {
+            if (index < 1 || index > todoList.size()) {
                 throw new TaskNotFoundException(index);
             }
+            Task task = todoList.get(index - 1);
             task.unmark();
             return String.format("OK, I've marked this task as not done yet:%n %s", task);
         } catch (NumberFormatException e) {
@@ -94,7 +107,7 @@ public class Quu {
         String greeting = String.format("Hello! I'm %s.%nWhat can I do for you?%n", NAME);
         System.out.println(greeting);
 
-        Map<Integer, Task> todoList = new HashMap<>();
+        List<Task> todoList = new ArrayList<>();
 
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
@@ -129,6 +142,10 @@ public class Quu {
                     }
                     case "event": {
                         response = parseEvent(todoList, parts);
+                        break;
+                    }
+                    case "delete":{
+                        response = remove_from_list(todoList, parts);
                         break;
                     }
                     default:
