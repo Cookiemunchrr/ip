@@ -337,3 +337,58 @@ Here are the tasks in your list:
 1.[T][ ] read book
 2.[T][ ] return book
 ```
+
+---
+
+## TC-18 — Delete a task
+
+**Aim:** `delete N` removes the Nth task, reports the correct remaining count, and renumbers the tasks after it.
+
+**Source:** iP spec, Level 6.
+
+```session
+> todo a
+Got it. I've added this task:
+[T][ ] a
+Now you have 1 tasks in the list.
+> todo b
+Got it. I've added this task:
+[T][ ] b
+Now you have 2 tasks in the list.
+> todo c
+Got it. I've added this task:
+[T][ ] c
+Now you have 3 tasks in the list.
+> delete 2
+Noted. I've removed this task:
+[T][ ] b
+Now you have 2 tasks in the list.
+> list
+Here are the tasks in your list:
+1.[T][ ] a
+2.[T][ ] c
+```
+
+---
+
+## TC-19 — Delete with a bad argument
+
+**Aim:** `delete` rejects an out-of-range index, a non-numeric index and a missing argument, using the same messages as `mark`. Guards against the three commands' shared argument handling drifting apart.
+
+**Source:** project convention — not specified by the iP.
+
+```session
+> todo read book
+Got it. I've added this task:
+[T][ ] read book
+Now you have 1 tasks in the list.
+> delete 99
+There's no task at 99 use list to check available tasks.
+> delete abc
+"abc" isn't a task number
+> delete
+Invalid format. Please follow this format: delete <task number>
+> list
+Here are the tasks in your list:
+1.[T][ ] read book
+```
