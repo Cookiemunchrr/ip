@@ -1,4 +1,10 @@
-package PACKAGE_NAME;
+public class ToDo extends Task {
+    public ToDo(String task_detail) {
+        super(task_detail);
+    }
 
-public class ToDo {
+    @Override
+    public String toString(){
+        return "[T]" + super.toString();
+    }
 }
