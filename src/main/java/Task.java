@@ -1,6 +1,6 @@
 public class Task {
-    private boolean isDone = false;
-    private String task_detail;
+    protected boolean isDone = false;
+    protected String task_detail;
 
     public boolean checkTask(){
         return isDone;
@@ -20,7 +20,7 @@ public class Task {
 
     @Override
     public String toString(){
-        if (isDone == true){
+        if (isDone){
             return String.format("[X] %s", task_detail);
         } else{
             return String.format("[ ] %s", task_detail);
