@@ -5,18 +5,27 @@ public class Quu {
     private static final String NAME = "Quu";
     private static int itemNum = 0;
 
-    public static String add_to_list(Map<Integer, Task> todoList, String input){
-        Task task = new Task(input);
+    private static String parseEvent(Map<Integer, Task> todoList, String[] parts) {
+        String invalid_event_command_response = "format as event <task> /from <start> /to <end>";
+        if (parts.length < 2) return invalid_event_command_response;
+        String[] e = parts[1].split(" /from ", 2);
+        if (e.length < 2) return invalid_event_command_response;
+        String[] t = e[1].split(" /to ", 2);
+        if (t.length < 2) return invalid_event_command_response;
+        return add_to_list(todoList, new Event(e[0], t[0], t[1]));
+    }
 
+    public static String add_to_list(Map<Integer, Task> todoList, Task task){
         itemNum += 1;
         todoList.put(itemNum, task);
-        return "added: " + input;
+        return String.format("Got it. I've added this task:%n  %s%nNow you have %d tasks in the list.",
+                task, todoList.size());
     }
 
     public static String list_items(Map<Integer, Task> todoList){
         String response = String.format("Here are the tasks in your list:");
         for (Map.Entry<Integer, Task> e: todoList.entrySet()) {
-            String item_string = String.format("%n%d. %s", e.getKey(), e.getValue().toString());
+            String item_string = String.format("%n%d.%s", e.getKey(), e.getValue().toString());
             response += item_string;
         }
         return response;
@@ -73,20 +82,51 @@ public class Quu {
             String command = parts[0];
             String response;
             switch(command){
-                case "list":
+                case "list": {
                     response = list_items(todoList);
                     break;
-                case "mark":
+                }
+                case "mark": {
                     response = parts.length < 2
-                            ? "Which task? Try: mark 2"
+                            ? "Which task?"
                             : mark_items(todoList, parts[1]);
                     break;
-                case "unmark":
+                }
+                case "unmark": {
                     response = parts.length < 2
-                            ? "Which task? Try: unmark 2"
+                            ? "Which task?"
                             : unmark_items(todoList, parts[1]);
                     break;
-                default: response = add_to_list(todoList, input);
+                }
+                case "todo": {
+                    if (parts.length < 2){
+                        response = "format as todo <task>";
+                    } else {
+                        Task task = new ToDo(parts[1]);
+                        response = add_to_list(todoList, task);
+                    }
+                    break;
+                }
+                case "deadline": {
+                    String invalid_deadline_command_response = "format as deadline <task> /by <time>";
+                    if (parts.length < 2) {
+                        response = invalid_deadline_command_response;
+                    } else {
+                        String[] d = parts[1].split(" /by ", 2);
+                        if (d.length < 2){
+                            response = invalid_deadline_command_response;
+                        } else {
+                            Task task = new Deadline(d[0], d[1]);
+                            response = add_to_list(todoList, task);
+                        }
+                    }
+                    break;
+                }
+                case "event": {
+                    response = parseEvent(todoList, parts);
+                    break;
+                }
+                default: response = "Invalid command";
             }
             System.out.println(response);
 
