@@ -1,8 +1,14 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 public class Quu {
     private static final String NAME = "Quu";
+    private static final String TASK_FILE = "./data/Quu.txt";
+
     private static String parseEvent(List<Task> todoList, String[] parts) throws MissingArgumentException{
         try{
             String[] e = parts[1].split(" /from ", 2);
@@ -96,6 +102,64 @@ public class Quu {
         }
     }
 
+    private static List<Task> readFile(String filePath) throws FileNotFoundException, InvalidFileContents{
+        File f = new File(filePath);
+        List<Task> todoList = new ArrayList<>();
+
+        try (Scanner s = new Scanner(f)){
+            while (s.hasNextLine()) {
+                String line = s.nextLine().trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
+                String[] fields = line.split("\\s*\\|\\s*", 3);   // [type, doneFlag, description]
+                if (fields.length < 3) {
+                    throw new InvalidFileContents("Corrupted line in " + TASK_FILE + ": " + line);
+                }
+                String[] parts = {fields[0], fields[2]};
+                try {
+                    switch (fields[0]) {
+                        case "T": {
+                            parseToDo(todoList, parts);
+                            break;
+                        }
+                        case "D": {
+                            parseDeadline(todoList, parts);
+                            break;
+                        }
+                        case "E": {
+                            parseEvent(todoList, parts);
+                            break;
+                        }
+                        default:
+                            throw new UnknownCommandException(parts[0]);
+                    }
+                } catch (QuuException e){
+                    throw new InvalidFileContents("Corrupted line in " + TASK_FILE + ": " + line);
+                }
+
+                if (fields[1].equals("1")){
+                    todoList.get(todoList.size() - 1).mark();
+                } else if (!fields[1].equals("0")) {
+                    throw new InvalidFileContents("Corrupted line in " + TASK_FILE + ": " + line);
+                }
+            }
+            return todoList;
+        }
+    }
+
+    private static void writeFile(String filePath, List<Task> todoList) throws IOException {
+        File f = new File(filePath);
+        File dir = f.getParentFile();          // null if filePath is a bare filename
+        if (dir != null && !dir.exists()) {
+            dir.mkdirs();                      // mkdirs, not mkdir — makes missing parents too
+        }
+        try (FileWriter fw = new FileWriter(f)) {   // creates the file if absent, truncates if present
+            for (Task task : todoList) {
+                fw.write(task.toFileString() + System.lineSeparator());
+            }
+        }
+    }
     public static void main(String[] args) {
         String banner = "  ___\n"
                 + " / _ \\ _   _ _   _\n"
@@ -107,7 +171,16 @@ public class Quu {
         String greeting = String.format("Hello! I'm %s.%nWhat can I do for you?%n", NAME);
         System.out.println(greeting);
 
-        List<Task> todoList = new ArrayList<>();
+        List<Task> todoList;
+        try {
+            todoList = readFile(TASK_FILE);
+        } catch (FileNotFoundException e){
+            System.out.println("File not found at this path, a new file will be created at " + TASK_FILE);
+            todoList = new ArrayList<>();
+        } catch (InvalidFileContents e){
+            System.out.println(e.getMessage());
+            todoList = new ArrayList<>();
+        }
 
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
@@ -117,7 +190,7 @@ public class Quu {
             }
             String[] parts = input.split(" ", 2);
             String command = parts[0];
-            String response;
+            String response = "";
             try {
                 switch (command) {
                     case "list": {
@@ -151,8 +224,11 @@ public class Quu {
                     default:
                         throw new UnknownCommandException(parts[0]);
                 }
+                writeFile(TASK_FILE, todoList);
             } catch (QuuException e){
                 response = e.getMessage();
+            } catch (IOException e){
+                response += String.format("%nUnable to write to file, %s", e.getMessage());
             }
             System.out.println(response);
 

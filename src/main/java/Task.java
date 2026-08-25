@@ -27,6 +27,14 @@ public class Task {
         }
     }
 
+    public String toFileString(){
+        if (isDone){
+            return String.format("| 1 | %s", task_detail);
+        } else{
+            return String.format("| 0 | %s", task_detail);
+        }
+    }
+
     public Task(String task_detail){
         this.task_detail = task_detail;
     }
