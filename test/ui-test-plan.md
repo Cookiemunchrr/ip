@@ -1,4 +1,4 @@
-# Quu — UI Test Plan
+# Quu — Ui Test Plan
 
 Test cases for the `test-ui` skill. The runner reads this file, starts the
 program once per test case, feeds each command in order, and compares the

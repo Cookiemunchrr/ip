@@ -166,16 +166,11 @@ public class Quu {
         }
     }
     public static void main(String[] args) {
-        String banner = "  ___\n"
-                + " / _ \\ _   _ _   _\n"
-                + "| | | | | | | | | |\n"
-                + "| |_| | |_| | |_| |\n"
-                + " \\__\\_\\\\__,_|\\__,_|\n";
-        System.out.println(banner);
+        Ui ui = new Ui();
 
-        String greeting = String.format("Hello! I'm %s.%nWhat can I do for you?%n", NAME);
-        System.out.println(greeting);
 
+        ui.print_banner();
+        ui.greet(NAME);
         List<Task> todoList;
         try {
             todoList = readFile(TASK_FILE);

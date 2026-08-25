@@ -1,11 +1,11 @@
 ---
 name: test-ui
-description: Run the Quu chatbot's text-UI test cases from test/ui-test-plan.md in this IntelliJ project, comparing each command's actual console output against the expected output and stopping at the first failure. Use when the user asks to test the UI, run the UI tests, check the chatbot output, verify the CLI behaviour, or after changing command handling, output wording, or task rendering.
+description: Run the Quu chatbot's text-Ui test cases from test/ui-test-plan.md in this IntelliJ project, comparing each command's actual console output against the expected output and stopping at the first failure. Use when the user asks to test the Ui, run the Ui tests, check the chatbot output, verify the CLI behaviour, or after changing command handling, output wording, or task rendering.
 ---
 
 # test-ui
 
-Runs the text-UI test cases recorded in `test/ui-test-plan.md` against the
+Runs the text-Ui test cases recorded in `test/ui-test-plan.md` against the
 chatbot, and reports the first mismatch.
 
 ## What it does
