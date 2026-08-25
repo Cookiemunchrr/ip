@@ -10,7 +10,7 @@ public class Quu {
     private static final String NAME = "Quu";
     private static final String TASK_FILE = "./data/Quu.txt";
 
-    private static String parseEvent(List<Task> todoList, String[] parts) throws MissingArgumentException, InvalidDateException, InvalidDurationException{
+    private static Task parseEvent(List<Task> todoList, String[] parts) throws MissingArgumentException, InvalidDateException, InvalidDurationException{
         try{
             String[] e = parts[1].split(" /from ", 2);
             String[] t = e[1].split(" /to ", 2);
@@ -22,7 +22,7 @@ public class Quu {
         }
     }
 
-    private static String parseToDo(List<Task> todoList, String[] parts) throws MissingArgumentException{
+    private static Task parseToDo(List<Task> todoList, String[] parts) throws MissingArgumentException{
         try{
             if (parts[1].trim().isEmpty()){
                 throw new MissingArgumentException(parts[0] + " <task>");
@@ -33,7 +33,7 @@ public class Quu {
         }
     }
 
-    private static String parseDeadline(List<Task> todoList, String[] parts) throws MissingArgumentException, InvalidDateException{
+    private static Task parseDeadline(List<Task> todoList, String[] parts) throws MissingArgumentException, InvalidDateException{
         try{
             String[] d = parts[1].split(" /by ", 2);
             return add_to_list(todoList, new Deadline(d[0], d[1]));
@@ -44,20 +44,19 @@ public class Quu {
         }
     }
 
-    public static String add_to_list(List<Task> todoList, Task task){
+    public static Task add_to_list(List<Task> todoList, Task task){
         todoList.add(task);
-        return String.format("Got it. I've added this task:%n  %s%nNow you have %d tasks in the list.",
-                task, todoList.size());
+        return task;
     }
 
-    public static String remove_from_list(List<Task> todoList, String[] parts) throws TaskNotFoundException, InvalidIndexException, MissingArgumentException{
+    public static Task remove_from_list(List<Task> todoList, String[] parts) throws TaskNotFoundException, InvalidIndexException, MissingArgumentException{
         try {
             int index = Integer.parseInt(parts[1]);
             if (index < 1 || index > todoList.size()) {
                 throw new TaskNotFoundException(index);
             }
             Task task = todoList.remove(index - 1);
-            return String.format("Noted. I've removed this task:%n %s%nNow you have %d tasks in the list.", task, todoList.size());
+            return task;
         } catch (NumberFormatException e) {
             throw new InvalidIndexException(parts[1]);
         } catch (ArrayIndexOutOfBoundsException e){
@@ -65,17 +64,7 @@ public class Quu {
         }
     }
 
-    public static String list_items(List<Task> todoList){
-        String response = String.format("Here are the tasks in your list:");
-        for (int i = 0; i < todoList.size(); i++) {
-            Task task = todoList.get(i);
-            String item_string = String.format("%n%d.%s", i+1, task.toString());
-            response += item_string;
-        }
-        return response;
-    }
-
-    public static String mark_items(List<Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
+    public static Task mark_items(List<Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
         try {
             int index = Integer.parseInt(parts[1]);
             if (index < 1 || index > todoList.size()) {
@@ -83,7 +72,7 @@ public class Quu {
             }
             Task task = todoList.get(index - 1);
             task.mark();
-            return String.format("Nice! I've marked this task as done:%n %s", task);
+            return task;
         } catch (NumberFormatException e) {
             throw new InvalidIndexException(parts[1]);
         } catch (ArrayIndexOutOfBoundsException e){
@@ -91,7 +80,7 @@ public class Quu {
         }
     }
 
-    public static String unmark_items(List<Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
+    public static Task unmark_items(List<Task> todoList, String[] parts) throws InvalidIndexException, TaskNotFoundException, MissingArgumentException{
         try {
             int index = Integer.parseInt(parts[1]);
             if (index < 1 || index > todoList.size()) {
@@ -99,7 +88,7 @@ public class Quu {
             }
             Task task = todoList.get(index - 1);
             task.unmark();
-            return String.format("OK, I've marked this task as not done yet:%n %s", task);
+            return task;
         } catch (NumberFormatException e) {
             throw new InvalidIndexException(parts[1]);
         } catch (ArrayIndexOutOfBoundsException e){
@@ -165,20 +154,21 @@ public class Quu {
             }
         }
     }
+
     public static void main(String[] args) {
         Ui ui = new Ui();
 
 
-        ui.print_banner();
+        ui.showBanner();
         ui.greet(NAME);
         List<Task> todoList;
         try {
             todoList = readFile(TASK_FILE);
         } catch (FileNotFoundException e){
-            System.out.println("File not found at this path, a new file will be created at " + TASK_FILE);
+            ui.showLoadingError("File not found at this path, a new file will be created at " + TASK_FILE);
             todoList = new ArrayList<>();
         } catch (InvalidFileContents e){
-            System.out.println(e.getMessage());
+            ui.showException(e);
             todoList = new ArrayList<>();
         }
 
@@ -194,31 +184,37 @@ public class Quu {
             try {
                 switch (command) {
                     case "list": {
-                        response = list_items(todoList);
+                        ui.showList(todoList);
                         break;
                     }
                     case "mark": {
-                        response = mark_items(todoList, parts);
+                        Task task = mark_items(todoList, parts);
+                        ui.showMarked(task);
                         break;
                     }
                     case "unmark": {
-                        response = unmark_items(todoList, parts);
+                        Task task = unmark_items(todoList, parts);
+                        ui.showUnMarked(task);
                         break;
                     }
                     case "todo": {
-                        response = parseToDo(todoList, parts);
+                        Task task = parseToDo(todoList, parts);
+                        ui.showAdded(task, todoList);
                         break;
                     }
                     case "deadline": {
-                        response = parseDeadline(todoList, parts);
+                        Task task = parseDeadline(todoList, parts);
+                        ui.showAdded(task, todoList);
                         break;
                     }
                     case "event": {
-                        response = parseEvent(todoList, parts);
+                        Task task = parseEvent(todoList, parts);
+                        ui.showAdded(task, todoList);
                         break;
                     }
                     case "delete":{
-                        response = remove_from_list(todoList, parts);
+                        Task task = remove_from_list(todoList, parts);
+                        ui.showRemoved(task, todoList);
                         break;
                     }
                     default:
@@ -226,15 +222,13 @@ public class Quu {
                 }
                 writeFile(TASK_FILE, todoList);
             } catch (QuuException e){
-                response = e.getMessage();
+                ui.showException(e);
             } catch (IOException e){
-                response += String.format("%nUnable to write to file, %s", e.getMessage());
+                ui.showSaveError(String.format("%nUnable to write to file, %s", e.getMessage()));
             }
-            System.out.println(response);
 
         }
-        String exit = "Bye. Hope to see you again soon!";
-        System.out.println(exit);
+        ui.goodbye();
     }
 
 }
