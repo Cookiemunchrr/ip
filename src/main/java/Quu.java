@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,13 +10,15 @@ public class Quu {
     private static final String NAME = "Quu";
     private static final String TASK_FILE = "./data/Quu.txt";
 
-    private static String parseEvent(List<Task> todoList, String[] parts) throws MissingArgumentException{
+    private static String parseEvent(List<Task> todoList, String[] parts) throws MissingArgumentException, InvalidDateException, InvalidDurationException{
         try{
             String[] e = parts[1].split(" /from ", 2);
             String[] t = e[1].split(" /to ", 2);
             return add_to_list(todoList, new Event(e[0], t[0], t[1]));
         } catch (ArrayIndexOutOfBoundsException e){
-            throw new MissingArgumentException(parts[0] + " <task> /from <start> /to <end>");
+            throw new MissingArgumentException(parts[0] + " <task> /from <yyyy-mm-dd> /to <yyyy-mm-dd>");
+        } catch (DateTimeParseException e){
+            throw new InvalidDateException(e.getParsedString());
         }
     }
 
@@ -30,12 +33,14 @@ public class Quu {
         }
     }
 
-    private static String parseDeadline(List<Task> todoList, String[] parts) throws MissingArgumentException{
+    private static String parseDeadline(List<Task> todoList, String[] parts) throws MissingArgumentException, InvalidDateException{
         try{
             String[] d = parts[1].split(" /by ", 2);
             return add_to_list(todoList, new Deadline(d[0], d[1]));
         } catch (ArrayIndexOutOfBoundsException e){
-            throw new MissingArgumentException(parts[0] + " <task> /by <time>");
+            throw new MissingArgumentException(parts[0] + " <task> /by <yyyy-mm-dd>");
+        } catch (DateTimeParseException e){
+            throw new InvalidDateException(e.getParsedString());
         }
     }
 
@@ -150,9 +155,9 @@ public class Quu {
 
     private static void writeFile(String filePath, List<Task> todoList) throws IOException {
         File f = new File(filePath);
-        File dir = f.getParentFile();          // null if filePath is a bare filename
+        File dir = f.getParentFile();
         if (dir != null && !dir.exists()) {
-            dir.mkdirs();                      // mkdirs, not mkdir — makes missing parents too
+            dir.mkdirs();
         }
         try (FileWriter fw = new FileWriter(f)) {   // creates the file if absent, truncates if present
             for (Task task : todoList) {

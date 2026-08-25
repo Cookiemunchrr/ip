@@ -15,6 +15,6 @@ public class Deadline extends Task{
 
     @Override
     public String toFileString() {
-        return "D " + super.toFileString() + String.format(" /by %s", deadline.format(DateTimeFormatter.ofPattern("MMM d yyyy")));
+        return "D " + super.toFileString() + String.format(" /by %s", deadline);
     }
 }
