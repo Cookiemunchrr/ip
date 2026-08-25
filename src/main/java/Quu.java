@@ -119,15 +119,15 @@ public class Quu {
                 String[] parts = {fields[0], fields[2]};
                 try {
                     switch (fields[0]) {
-                        case "todo": {
+                        case "T": {
                             parseToDo(todoList, parts);
                             break;
                         }
-                        case "deadline": {
+                        case "D": {
                             parseDeadline(todoList, parts);
                             break;
                         }
-                        case "event": {
+                        case "E": {
                             parseEvent(todoList, parts);
                             break;
                         }
@@ -139,7 +139,7 @@ public class Quu {
                 }
 
                 if (fields[1].equals("1")){
-                    todoList.getLast().mark();
+                    todoList.get(todoList.size() - 1).mark();
                 } else if (!fields[1].equals("0")) {
                     throw new InvalidFileContents("Corrupted line in " + TASK_FILE + ": " + line);
                 }
@@ -148,6 +148,18 @@ public class Quu {
         }
     }
 
+    private static void writeFile(String filePath, List<Task> todoList) throws IOException {
+        File f = new File(filePath);
+        File dir = f.getParentFile();          // null if filePath is a bare filename
+        if (dir != null && !dir.exists()) {
+            dir.mkdirs();                      // mkdirs, not mkdir — makes missing parents too
+        }
+        try (FileWriter fw = new FileWriter(f)) {   // creates the file if absent, truncates if present
+            for (Task task : todoList) {
+                fw.write(task.toFileString() + System.lineSeparator());
+            }
+        }
+    }
     public static void main(String[] args) {
         String banner = "  ___\n"
                 + " / _ \\ _   _ _   _\n"
@@ -178,7 +190,7 @@ public class Quu {
             }
             String[] parts = input.split(" ", 2);
             String command = parts[0];
-            String response;
+            String response = "";
             try {
                 switch (command) {
                     case "list": {
@@ -212,8 +224,11 @@ public class Quu {
                     default:
                         throw new UnknownCommandException(parts[0]);
                 }
+                writeFile(TASK_FILE, todoList);
             } catch (QuuException e){
                 response = e.getMessage();
+            } catch (IOException e){
+                response += String.format("%nUnable to write to file, %s", e.getMessage());
             }
             System.out.println(response);
 
