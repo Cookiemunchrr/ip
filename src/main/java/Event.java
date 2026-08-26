@@ -1,5 +1,6 @@
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 public class Event extends Task{
     protected LocalDate eventStart;
@@ -26,5 +27,18 @@ public class Event extends Task{
         return "E " + super.toFileString() + String.format(" /from %s /to %s",
                 eventStart,
                 eventEnd);
+    }
+
+    public static Event fromFileString(String[] fields) throws InvalidDurationException, InvalidDateException, MissingArgumentException{
+        try{
+            String[] e = fields[2].split(" /from ", 2);
+            String[] t = e[1].split(" /to ", 2);
+            Event event = new Event(e[0], t[0], t[1]);
+            return event;
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new MissingArgumentException(fields[0] + " <task> /from <yyyy-mm-dd> /to <yyyy-mm-dd>");
+        } catch (DateTimeParseException e){
+            throw new InvalidDateException(e.getParsedString());
+        }
     }
 }

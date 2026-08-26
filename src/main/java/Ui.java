@@ -16,14 +16,14 @@ public class Ui {
         System.out.println(banner);
     }
 
-    public void showAdded(Task task, List<Task> todoList){
+    public void showAdded(Task task, int size){
         String response = String.format("Got it. I've added this task:%n  %s%nNow you have %d tasks in the list.",
-                task, todoList.size());
+                task, size);
         System.out.println(response);
     }
 
-    public void showRemoved(Task task, List<Task> todoList){
-        String response = String.format("Noted. I've removed this task:%n %s%nNow you have %d tasks in the list.", task, todoList.size());
+    public void showRemoved(Task task, int size){
+        String response = String.format("Noted. I've removed this task:%n %s%nNow you have %d tasks in the list.", task, size);
         System.out.println(response);
     }
 
@@ -37,10 +37,10 @@ public class Ui {
         System.out.println(response);
     }
 
-    public void showList(List<Task> todoList){
+    public void showList(TaskList taskList){
         String response = String.format("Here are the tasks in your list:");
-        for (int i = 0; i < todoList.size(); i++) {
-            Task task = todoList.get(i);
+        for (int i = 0; i < taskList.getSize(); i++) {
+            Task task = taskList.getItemAtIndex(i);
             String item_string = String.format("%n%d.%s", i+1, task.toString());
             response += item_string;
         }

@@ -12,4 +12,16 @@ public class ToDo extends Task {
     public String toFileString(){
         return "T " + super.toFileString();
     }
+
+    public static ToDo fromFileString(String[] fields) throws MissingArgumentException{
+        try{
+            if (fields[2].trim().isEmpty()){
+                throw new MissingArgumentException(fields[0] + " <task>");
+            }
+            ToDo todo = new ToDo(fields[2]);
+            return todo;
+        } catch (ArrayIndexOutOfBoundsException e){
+            throw new MissingArgumentException(fields[0] + " <task>");
+        }
+    }
 }
