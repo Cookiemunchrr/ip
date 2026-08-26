@@ -1,4 +1,17 @@
+package quu.parser;
+
 import java.time.format.DateTimeParseException;
+
+import quu.exception.InvalidDateException;
+import quu.exception.InvalidDurationException;
+import quu.exception.InvalidIndexException;
+import quu.exception.MissingArgumentException;
+import quu.task.Deadline;
+import quu.task.Event;
+import quu.task.Task;
+import quu.task.TaskList;
+import quu.task.ToDo;
+
 public class Parser {
     public Task parseEvent(TaskList taskList, String[] parts) throws MissingArgumentException, InvalidDateException, InvalidDurationException{
         try{

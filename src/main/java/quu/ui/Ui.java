@@ -1,4 +1,9 @@
+package quu.ui;
+
 import java.util.List;
+
+import quu.task.Task;
+import quu.task.TaskList;
 
 public class Ui {
 

@@ -37,8 +37,9 @@ Options:
 |---|---|---|
 | `--plan PATH` | `test/ui-test-plan.md` | Test plan to read |
 | `--src PATH` | `src/main/java` | Sources to compile |
-| `--main CLASS` | `Quu` | Main class to run |
+| `--main CLASS` | `quu.Quu` | Main class to run (fully qualified) |
 | `--only TC-ID` | — | Run one test case, e.g. `--only TC-05` |
+| `--save PATH` | `data/Quu.txt` | Save file cleared before each case; `none` to leave it |
 | `--no-compile` | off | Use the classes IntelliJ last built |
 
 Exit status: `0` all passed, `1` a test failed, `2` setup problem (no plan,

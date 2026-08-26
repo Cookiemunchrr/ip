@@ -1,3 +1,5 @@
+package quu.exception;
+
 import java.time.LocalDate;
 
 public class InvalidDurationException extends QuuException{

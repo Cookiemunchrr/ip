@@ -1,5 +1,10 @@
+package quu.task;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import quu.exception.TaskNotFoundException;
+
 public class TaskList {
     private final List<Task> todoList;
 

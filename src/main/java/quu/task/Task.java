@@ -1,3 +1,5 @@
+package quu.task;
+
 public class Task {
     protected boolean isDone = false;
     protected String task_detail;

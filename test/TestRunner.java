@@ -84,8 +84,9 @@ public class TestRunner {
 
         String planPath = "test/ui-test-plan.md";
         String srcDir = "src/main/java";
-        String mainClass = "Quu";
+        String mainClass = "quu.Quu";
         String only = null;
+        String savePath = "data/Quu.txt";
         boolean noCompile = false;
 
         for (int i = 0; i < args.length; i++) {
@@ -94,6 +95,7 @@ public class TestRunner {
             case "--src" -> srcDir = requireValue(args, ++i, "--src");
             case "--main" -> mainClass = requireValue(args, ++i, "--main");
             case "--only" -> only = requireValue(args, ++i, "--only");
+            case "--save" -> savePath = requireValue(args, ++i, "--save");
             case "--no-compile" -> noCompile = true;
             case "--help", "-h" -> {
                 printUsage();
@@ -117,6 +119,7 @@ public class TestRunner {
 
         int passed = 0;
         for (TestCase testCase : cases) {
+            resetSave(savePath);
             if (!runCase(testCase, classpath, mainClass)) {
                 System.out.println();
                 System.out.println(RED + passed + "/" + cases.size()
@@ -143,12 +146,31 @@ public class TestRunner {
 
                   --plan PATH    test plan to read     (default: test/ui-test-plan.md)
                   --src PATH     sources to compile    (default: src/main/java)
-                  --main CLASS   main class to run     (default: Quu)
+                  --main CLASS   main class to run     (default: quu.Quu)
                   --only TC-ID   run a single test case, e.g. --only TC-05
+                  --save PATH    save file cleared before each case (default: data/Quu.txt,
+                                 "none" to leave the save file alone)
                   --no-compile   run the classes IntelliJ last built
                   --help         show this message
 
                 Exit status: 0 all passed, 1 a test failed, 2 setup problem.""");
+    }
+
+    /**
+     * Deletes the chatbot's save file so each test case starts with an empty task list.
+     *
+     * <p>Each case runs in a fresh JVM, but the save file outlives the process, so without this
+     * one case's tasks would be loaded by the next and every task count would drift.
+     */
+    private static void resetSave(String savePath) {
+        if (savePath == null || savePath.equals("none")) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(Paths.get(savePath));
+        } catch (IOException e) {
+            failSetup("could not clear the save file " + savePath + ": " + e.getMessage());
+        }
     }
 
     /** Reports a setup problem and exits; never returns. */

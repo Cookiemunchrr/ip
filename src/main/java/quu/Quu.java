@@ -1,6 +1,18 @@
+package quu;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
+
+import quu.exception.InvalidFileContents;
+import quu.exception.QuuException;
+import quu.exception.UnknownCommandException;
+import quu.parser.Parser;
+import quu.storage.Storage;
+import quu.task.Task;
+import quu.task.TaskList;
+import quu.ui.Ui;
+
 public class Quu {
     private static final String NAME = "Quu";
     private static final String TASK_FILE = "./data/Quu.txt";

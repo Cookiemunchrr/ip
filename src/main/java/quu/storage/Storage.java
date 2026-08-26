@@ -1,11 +1,23 @@
+package quu.storage;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
+
+import quu.exception.InvalidFileContents;
+import quu.exception.QuuException;
+import quu.exception.UnknownCommandException;
+import quu.task.Deadline;
+import quu.task.Event;
+import quu.task.Task;
+import quu.task.TaskList;
+import quu.task.ToDo;
+
 public class Storage {
-    String filePath;
+    private final String filePath;
     public Storage(String filePath){
         this.filePath = filePath;
     }

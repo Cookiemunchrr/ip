@@ -1,7 +1,14 @@
+package quu.task;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+
+import quu.exception.InvalidDateException;
+import quu.exception.InvalidDurationException;
+import quu.exception.MissingArgumentException;
+
 public class Event extends Task{
     protected LocalDate eventStart;
     protected LocalDate eventEnd;

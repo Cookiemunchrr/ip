@@ -36,7 +36,9 @@ Expected outputs are taken from the iP specification's sample sessions
 (Levels 0–4). Where the specification does not define a message — malformed
 input, out-of-range indices — the test case is marked **project convention**
 and records the message this project has chosen. Those may be changed freely;
-the spec-derived ones may not.
+the spec-derived ones may not — except where a later level supersedes an
+earlier one, as Level 8 does to the free-text dates of Level 4. Such cases say
+so in their **Source**.
 
 ## Running
 
@@ -58,6 +60,7 @@ Exits `0` if every case passes, `1` on the first failure.
 ...
 Hello! I'm Quu.
 What can I do for you?
+...
 > bye
 Bye. Hope to see you again soon!
 ```
@@ -83,12 +86,12 @@ Now you have 1 tasks in the list.
 
 **Aim:** `deadline … /by …` splits the description from the due date and renders it as `[D]` with the date in parentheses.
 
-**Source:** iP spec, Level 4.
+**Source:** iP spec, Level 4, updated for the Level 8 date format (`yyyy-mm-dd` in, `MMM d yyyy` out).
 
 ```session
-> deadline return book /by Sunday
+> deadline return book /by 2026-06-06
 Got it. I've added this task:
-[D][ ] return book (by: Sunday)
+[D][ ] return book (by: Jun 6 2026)
 Now you have 1 tasks in the list.
 ```
 
@@ -98,12 +101,12 @@ Now you have 1 tasks in the list.
 
 **Aim:** `event … /from … /to …` splits the description, start and end, and renders it as `[E]` with both times in one bracketed clause.
 
-**Source:** iP spec, Level 4.
+**Source:** iP spec, Level 4, updated for the Level 8 date format (`yyyy-mm-dd` in, `MMM d yyyy` out).
 
 ```session
-> event project meeting /from Mon 2pm /to 4pm
+> event project meeting /from 2026-08-06 /to 2026-08-08
 Got it. I've added this task:
-[E][ ] project meeting (from: Mon 2pm to: 4pm)
+[E][ ] project meeting (from: Aug 6 2026 to: Aug 8 2026)
 Now you have 1 tasks in the list.
 ```
 
@@ -113,26 +116,26 @@ Now you have 1 tasks in the list.
 
 **Aim:** `list` numbers tasks from 1 in the order they were added, with each task's type and status icons. Guards against the ordering being decided by the storage structure rather than insertion.
 
-**Source:** iP spec, Level 4.
+**Source:** iP spec, Level 4, updated for the Level 8 date format (`yyyy-mm-dd` in, `MMM d yyyy` out).
 
 ```session
 > todo read book
 Got it. I've added this task:
 [T][ ] read book
 Now you have 1 tasks in the list.
-> deadline return book /by June 6th
+> deadline return book /by 2026-06-06
 Got it. I've added this task:
-[D][ ] return book (by: June 6th)
+[D][ ] return book (by: Jun 6 2026)
 Now you have 2 tasks in the list.
-> event project meeting /from Aug 6th 2pm /to 4pm
+> event project meeting /from 2026-08-06 /to 2026-08-08
 Got it. I've added this task:
-[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+[E][ ] project meeting (from: Aug 6 2026 to: Aug 8 2026)
 Now you have 3 tasks in the list.
 > list
 Here are the tasks in your list:
 1.[T][ ] read book
-2.[D][ ] return book (by: June 6th)
-3.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+2.[D][ ] return book (by: Jun 6 2026)
+3.[E][ ] project meeting (from: Aug 6 2026 to: Aug 8 2026)
 ```
 
 ---
@@ -295,7 +298,7 @@ Invalid format. Please follow this format: todo <task>
 
 ```session
 > deadline return book
-Invalid format. Please follow this format: deadline <task> /by <time>
+Invalid format. Please follow this format: deadline <task> /by <yyyy-mm-dd>
 ```
 
 ---
@@ -308,7 +311,7 @@ Invalid format. Please follow this format: deadline <task> /by <time>
 
 ```session
 > event project meeting /from Mon 2pm
-Invalid format. Please follow this format: event <task> /from <start> /to <end>
+Invalid format. Please follow this format: event <task> /from <yyyy-mm-dd> /to <yyyy-mm-dd>
 ```
 
 ---
