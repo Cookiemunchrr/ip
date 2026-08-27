@@ -1,17 +1,18 @@
 package quu.exception;
 
 /**
- * Represents an error that Quu can report to the user and recover from.
- * All application-specific exceptions in Quu extend this class, so the
- * main loop can catch them in one place.
+ * Base class for every error Quu reports to the user.
+ * The message of a {@code QuuException} is written straight to the console, so
+ * it should read as an explanation aimed at the user rather than at a developer.
  */
-public class QuuException extends Exception{
+public class QuuException extends Exception {
+
     /**
-     * Constructs an exception carrying a message meant to be shown to the user.
+     * Constructs an exception carrying a user-facing message.
      *
-     * @param message Explanation of what went wrong.
+     * @param message Text explaining what went wrong.
      */
-    public QuuException(String message){
+    public QuuException(String message) {
         super(message);
     }
 }

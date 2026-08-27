@@ -14,22 +14,18 @@ import quu.task.TaskList;
 import quu.ui.Ui;
 
 /**
- * Entry point of the Quu chatbot.
- * Wires together the {@link Ui}, {@link Parser}, {@link Storage} and
- * {@link TaskList}, then runs the read-evaluate-print loop until the
- * user types {@code bye}.
+ * Entry point of the Quu task-tracking chatbot.
+ * Loads the saved task list, then reads commands from standard input until the
+ * user types {@code bye}, saving the list after every successful command.
  */
 public class Quu {
     private static final String NAME = "Quu";
     private static final String TASK_FILE = "./data/Quu.txt";
 
     /**
-     * Starts Quu: loads any saved tasks, then reads and executes user
-     * commands until the user exits. Every successful command saves the
-     * updated task list back to disk, and recoverable errors are reported
-     * to the user without ending the session.
+     * Runs the chatbot.
      *
-     * @param args Command line arguments; not used.
+     * @param args Command line arguments; none are used.
      */
     public static void main(String[] args) {
         Ui ui = new Ui();
@@ -39,12 +35,14 @@ public class Quu {
 
         ui.showBanner();
         ui.greet(NAME);
+
+        // A missing or corrupted save file is not fatal; start from an empty list instead.
         try {
             taskList = storage.readFile();
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             ui.showLoadingError("File not found at this path, a new file will be created at " + TASK_FILE);
             taskList = new TaskList();
-        } catch (InvalidFileContents e){
+        } catch (InvalidFileContents e) {
             ui.showException(e);
             taskList = new TaskList();
         }
@@ -55,6 +53,7 @@ public class Quu {
             if (input.equals("bye")) {
                 break;
             }
+
             String[] parts = input.split(" ", 2);
             String command = parts[0];
             try {
@@ -65,37 +64,37 @@ public class Quu {
                     }
                     case "mark": {
                         int index = parser.parseTaskNumber(parts);
-                        Task task = taskList.mark_items(index);
+                        Task task = taskList.markTask(index);
                         ui.showMarked(task);
                         break;
                     }
                     case "unmark": {
                         int index = parser.parseTaskNumber(parts);
-                        Task task = taskList.unmark_items(index);
+                        Task task = taskList.unmarkTask(index);
                         ui.showUnMarked(task);
                         break;
                     }
                     case "todo": {
                         Task task = parser.parseToDo(taskList, parts);
-                        taskList.add_to_list(task);
+                        taskList.addTask(task);
                         ui.showAdded(task, taskList.getSize());
                         break;
                     }
                     case "deadline": {
                         Task task = parser.parseDeadline(taskList, parts);
-                        taskList.add_to_list(task);
+                        taskList.addTask(task);
                         ui.showAdded(task, taskList.getSize());
                         break;
                     }
                     case "event": {
                         Task task = parser.parseEvent(taskList, parts);
-                        taskList.add_to_list(task);
+                        taskList.addTask(task);
                         ui.showAdded(task, taskList.getSize());
                         break;
                     }
-                    case "delete":{
+                    case "delete": {
                         int index = parser.parseTaskNumber(parts);
-                        Task task = taskList.remove_from_list(index);
+                        Task task = taskList.removeTask(index);
                         ui.showRemoved(task, taskList.getSize());
                         break;
                     }
@@ -103,14 +102,12 @@ public class Quu {
                         throw new UnknownCommandException(parts[0]);
                 }
                 storage.writeFile(taskList.getTodoList());
-            } catch (QuuException e){
+            } catch (QuuException e) {
                 ui.showException(e);
-            } catch (IOException e){
+            } catch (IOException e) {
                 ui.showSaveError(String.format("%nUnable to write to file, %s", e.getMessage()));
             }
-
         }
         ui.goodbye();
     }
-
 }

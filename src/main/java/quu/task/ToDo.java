@@ -3,56 +3,44 @@ package quu.task;
 import quu.exception.MissingArgumentException;
 
 /**
- * Represents a task with no date attached to it.
+ * Represents a task with no associated date.
  */
 public class ToDo extends Task {
 
     /**
-     * Constructs a todo with the given description.
+     * Constructs a to-do that is initially not done.
      *
-     * @param task_detail Description of the todo.
+     * @param description Text describing what the task is.
      */
-    public ToDo(String task_detail) {
-        super(task_detail);
+    public ToDo(String description) {
+        super(description);
     }
 
     /**
-     * Returns the user-facing representation of this todo,
-     * prefixed with the {@code [T]} type icon.
+     * Reconstructs a to-do from the fields of one save-file line.
      *
-     * @return A string such as {@code [T][ ] read book}.
+     * @param fields Line split into type letter, done flag, and description.
+     * @return The reconstructed to-do.
+     * @throws MissingArgumentException If the description is absent or blank.
      */
+    public static ToDo fromFileString(String[] fields) throws MissingArgumentException {
+        try {
+            if (fields[2].trim().isEmpty()) {
+                throw new MissingArgumentException(fields[0] + " <task>");
+            }
+            return new ToDo(fields[2]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new MissingArgumentException(fields[0] + " <task>");
+        }
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
         return "[T]" + super.toString();
     }
 
-    /**
-     * Returns the representation of this todo used when saving to disk.
-     *
-     * @return A string such as {@code T | 0 | read book}.
-     */
     @Override
-    public String toFileString(){
+    public String toFileString() {
         return "T " + super.toFileString();
-    }
-
-    /**
-     * Creates a todo from the fields of a line read from the save file.
-     *
-     * @param fields Fields of a saved line, where {@code fields[2]} holds the description.
-     * @return The todo described by the given fields.
-     * @throws MissingArgumentException If the description is missing or blank.
-     */
-    public static ToDo fromFileString(String[] fields) throws MissingArgumentException{
-        try{
-            if (fields[2].trim().isEmpty()){
-                throw new MissingArgumentException(fields[0] + " <task>");
-            }
-            ToDo todo = new ToDo(fields[2]);
-            return todo;
-        } catch (ArrayIndexOutOfBoundsException e){
-            throw new MissingArgumentException(fields[0] + " <task>");
-        }
     }
 }

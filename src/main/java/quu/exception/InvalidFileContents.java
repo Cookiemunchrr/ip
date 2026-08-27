@@ -1,13 +1,14 @@
 package quu.exception;
 
 /**
- * Signals that the save file could not be read because one of its lines is corrupted.
+ * Signals that a line of the save file could not be read back into a task.
  */
-public class InvalidFileContents extends QuuException{
+public class InvalidFileContents extends QuuException {
+
     /**
-     * Constructs an exception describing the problem found in the save file.
+     * Constructs an exception describing the corrupted line.
      *
-     * @param message Explanation of which part of the file is corrupted.
+     * @param message Text naming the file and the offending line.
      */
     public InvalidFileContents(String message) {
         super(message);

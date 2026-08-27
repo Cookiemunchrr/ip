@@ -1,13 +1,15 @@
 package quu.exception;
 
 /**
- * Signals that a date supplied by the user could not be understood.
+ * Signals that a date typed by the user, or read from the save file, is not in
+ * the expected yyyy-mm-dd form.
  */
-public class InvalidDateException extends QuuException{
+public class InvalidDateException extends QuuException {
+
     /**
-     * Constructs an exception naming the text that failed to parse as a date.
+     * Constructs an exception naming the text that could not be parsed.
      *
-     * @param input The text that was not a valid {@code yyyy-mm-dd} date.
+     * @param input Text that was expected to be a date.
      */
     public InvalidDateException(String input) {
         super("'" + input + "' is not a valid date. Use yyyy-mm-dd, e.g. 2026-06-06.");

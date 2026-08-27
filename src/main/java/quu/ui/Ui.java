@@ -1,13 +1,12 @@
 package quu.ui;
 
-import java.util.List;
-
 import quu.task.Task;
 import quu.task.TaskList;
 
 /**
- * Handles everything Quu shows to the user on the console.
- * Every method prints a ready-formatted message; no method reads input.
+ * Writes everything the user sees to standard output.
+ * Keeping all printing here means the rest of the program never calls
+ * {@code System.out} directly.
  */
 public class Ui {
 
@@ -16,15 +15,13 @@ public class Ui {
      *
      * @param name Name the chatbot introduces itself with.
      */
-    public void greet(String name){
+    public void greet(String name) {
         String greeting = String.format("Hello! I'm %s.%nWhat can I do for you?%n", name);
         System.out.println(greeting);
     }
 
-    /**
-     * Prints the Quu logo shown when the program starts.
-     */
-    public void showBanner(){
+    /** Prints the ASCII-art banner shown at start-up. */
+    public void showBanner() {
         String banner = "  ___\n"
                 + " / _ \\ _   _ _   _\n"
                 + "| | | | | | | | | |\n"
@@ -34,44 +31,45 @@ public class Ui {
     }
 
     /**
-     * Prints confirmation that a task was added.
+     * Confirms that a task was added.
      *
-     * @param task The task that was added.
+     * @param task Task that was added.
      * @param size Number of tasks in the list after the addition.
      */
-    public void showAdded(Task task, int size){
+    public void showAdded(Task task, int size) {
         String response = String.format("Got it. I've added this task:%n  %s%nNow you have %d tasks in the list.",
                 task, size);
         System.out.println(response);
     }
 
     /**
-     * Prints confirmation that a task was deleted.
+     * Confirms that a task was removed.
      *
-     * @param task The task that was removed.
+     * @param task Task that was removed.
      * @param size Number of tasks in the list after the removal.
      */
-    public void showRemoved(Task task, int size){
-        String response = String.format("Noted. I've removed this task:%n %s%nNow you have %d tasks in the list.", task, size);
+    public void showRemoved(Task task, int size) {
+        String response = String.format("Noted. I've removed this task:%n %s%nNow you have %d tasks in the list.",
+                task, size);
         System.out.println(response);
     }
 
     /**
-     * Prints confirmation that a task was marked as done.
+     * Confirms that a task was marked as done.
      *
-     * @param task The task that was marked.
+     * @param task Task that was marked.
      */
-    public void showMarked(Task task){
+    public void showMarked(Task task) {
         String response = String.format("Nice! I've marked this task as done:%n %s", task);
         System.out.println(response);
     }
 
     /**
-     * Prints confirmation that a task was marked as not done.
+     * Confirms that a task was marked as not done.
      *
-     * @param task The task that was unmarked.
+     * @param task Task that was unmarked.
      */
-    public void showUnMarked(Task task){
+    public void showUnMarked(Task task) {
         String response = String.format("OK, I've marked this task as not done yet:%n %s", task);
         System.out.println(response);
     }
@@ -79,54 +77,47 @@ public class Ui {
     /**
      * Prints every task in the list, numbered from one.
      *
-     * @param taskList The task list to display.
+     * @param taskList Tasks to display.
      */
-    public void showList(TaskList taskList){
-        String response = String.format("Here are the tasks in your list:");
+    public void showList(TaskList taskList) {
+        StringBuilder response = new StringBuilder("Here are the tasks in your list:");
         for (int i = 0; i < taskList.getSize(); i++) {
             Task task = taskList.getItemAtIndex(i);
-            String item_string = String.format("%n%d.%s", i+1, task.toString());
-            response += item_string;
+            response.append(String.format("%n%d.%s", i + 1, task));
         }
         System.out.println(response);
     }
 
     /**
-     * Prints the message of an exception that the user should see.
+     * Prints the message carried by an exception the user should see.
      *
-     * @param e The exception to report.
+     * @param e Exception whose message explains what went wrong.
      */
-    public void showException(Exception e){
+    public void showException(Exception e) {
         System.out.println(e.getMessage());
     }
 
     /**
-     * Prints a message explaining that tasks could not be saved.
+     * Prints a message explaining that the task list could not be saved.
      *
-     * @param message Description of the saving problem.
+     * @param message Text describing the failure.
      */
-    public void showSaveError(String message){
+    public void showSaveError(String message) {
         System.out.println(message);
     }
 
     /**
-     * Prints a message explaining that tasks could not be loaded.
+     * Prints a message explaining that the task list could not be loaded.
      *
-     * @param message Description of the loading problem.
+     * @param message Text describing the failure.
      */
-    public void showLoadingError(String message){
+    public void showLoadingError(String message) {
         System.out.println(message);
     }
 
-    /**
-     * Prints the farewell message shown when the program exits.
-     */
-    public void goodbye(){
+    /** Prints the farewell message. */
+    public void goodbye() {
         String exit = "Bye. Hope to see you again soon!";
         System.out.println(exit);
-    }
-
-    private void say(String message){
-        System.out.println(message);
     }
 }

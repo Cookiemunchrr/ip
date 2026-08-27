@@ -27,7 +27,7 @@ public class StorageTest {
         Storage storage = new Storage(file.toString());
 
         TaskList original = new TaskList();
-        original.add_to_list(new ToDo("read book"));
+        original.addTask(new ToDo("read book"));
 
         storage.writeFile(original.getTodoList());
         TaskList loaded = storage.readFile();

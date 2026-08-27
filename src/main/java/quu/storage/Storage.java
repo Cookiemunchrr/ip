@@ -17,43 +17,46 @@ import quu.task.TaskList;
 import quu.task.ToDo;
 
 /**
- * Loads tasks from, and saves tasks to, the save file on disk.
- * Each task occupies one line of the file, with its fields separated by {@code |}.
+ * Loads tasks from, and saves tasks to, a plain-text file on disk.
+ * Each line holds one task as {@code <type> | <doneFlag> | <details>}.
  */
 public class Storage {
     private final String filePath;
 
     /**
-     * Constructs a storage that reads from and writes to the given file.
+     * Constructs a storage bound to one save file.
      *
-     * @param filePath Path of the save file.
+     * @param filePath Path of the save file; it need not exist yet.
      */
-    public Storage(String filePath){
+    public Storage(String filePath) {
         this.filePath = filePath;
     }
 
     /**
      * Reads the save file and rebuilds the task list it describes.
-     * Blank lines are ignored.
+     * Blank lines are skipped.
      *
-     * @return The tasks stored in the save file.
+     * @return The tasks recorded in the save file.
      * @throws FileNotFoundException If the save file does not exist.
-     * @throws InvalidFileContents If any line of the file is malformed.
+     * @throws InvalidFileContents If any line is malformed or has an unknown task type.
      */
     public TaskList readFile() throws FileNotFoundException, InvalidFileContents {
-        File f = new File(filePath);
+        File file = new File(filePath);
         TaskList taskList = new TaskList();
 
-        try (Scanner s = new Scanner(f)){
-            while (s.hasNextLine()) {
-                String line = s.nextLine().trim();
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim();
                 if (line.isEmpty()) {
                     continue;
                 }
-                String[] fields = line.split("\\s*\\|\\s*", 3);   // [type, doneFlag, description]
+
+                // [type, doneFlag, description]
+                String[] fields = line.split("\\s*\\|\\s*", 3);
                 if (fields.length < 3) {
                     throw new InvalidFileContents("Corrupted line in " + filePath + ": " + line);
                 }
+
                 Task task;
                 try {
                     switch (fields[0]) {
@@ -72,12 +75,12 @@ public class Storage {
                         default:
                             throw new UnknownCommandException(fields[0]);
                     }
-                    taskList.add_to_list(task);
-                } catch (QuuException e){
+                    taskList.addTask(task);
+                } catch (QuuException e) {
                     throw new InvalidFileContents("Corrupted line in " + filePath + ": " + line);
                 }
 
-                if (fields[1].equals("1")){
+                if (fields[1].equals("1")) {
                     task.mark();
                 } else if (!fields[1].equals("0")) {
                     throw new InvalidFileContents("Corrupted line in " + filePath + ": " + line);
@@ -89,20 +92,22 @@ public class Storage {
 
     /**
      * Writes the given tasks to the save file, replacing whatever it held before.
-     * The parent directory and the file itself are created if they do not exist.
+     * Missing parent directories are created.
      *
-     * @param todoList Tasks to save, in the order they should appear.
-     * @throws IOException If the file or its directory cannot be written to.
+     * @param todoList Tasks to save, in list order.
+     * @throws IOException If the file or its parent directories cannot be written.
      */
     public void writeFile(List<Task> todoList) throws IOException {
-        File f = new File(filePath);
-        File dir = f.getParentFile();
-        if (dir != null && !dir.exists()) {
-            dir.mkdirs();
+        File file = new File(filePath);
+        File parentDirectory = file.getParentFile();
+        if (parentDirectory != null && !parentDirectory.exists()) {
+            parentDirectory.mkdirs();
         }
-        try (FileWriter fw = new FileWriter(f)) {   // creates the file if absent, truncates if present
+
+        // Creates the file if absent, truncates it if present.
+        try (FileWriter writer = new FileWriter(file)) {
             for (Task task : todoList) {
-                fw.write(task.toFileString() + System.lineSeparator());
+                writer.write(task.toFileString() + System.lineSeparator());
             }
         }
     }
