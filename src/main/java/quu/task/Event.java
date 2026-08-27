@@ -9,22 +9,22 @@ import quu.exception.InvalidDurationException;
 import quu.exception.MissingArgumentException;
 
 /**
- * Represents a task that spans a period between two dates.
+ * A task that spans a period between two dates.
  */
 public class Event extends Task {
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM d yyyy");
 
-    protected LocalDate eventStart;
-    protected LocalDate eventEnd;
+    private final LocalDate eventStart;
+    private final LocalDate eventEnd;
 
     /**
-     * Constructs an event that is initially not done.
+     * Creates an event.
      *
-     * @param description Text describing what the task is.
-     * @param eventStart Start date in ISO form, for example 2026-06-06.
-     * @param eventEnd End date in ISO form; must not fall before the start date.
-     * @throws InvalidDurationException If the end date is before the start date.
-     * @throws DateTimeParseException If either date is not in ISO form.
+     * @param description text describing what the task is
+     * @param eventStart the start date in ISO form, {@code yyyy-mm-dd}
+     * @param eventEnd the end date in ISO form, {@code yyyy-mm-dd}
+     * @throws InvalidDurationException if the end date falls before the start date
+     * @throws DateTimeParseException if either date is not in ISO form
      */
     public Event(String description, String eventStart, String eventEnd) throws InvalidDurationException {
         super(description);
@@ -36,13 +36,13 @@ public class Event extends Task {
     }
 
     /**
-     * Reconstructs an event from the fields of one save-file line.
+     * Rebuilds an event from a line of the save file.
      *
-     * @param fields Line split into type letter, done flag, and the rest.
-     * @return The reconstructed event.
-     * @throws InvalidDurationException If the end date is before the start date.
-     * @throws InvalidDateException If either date cannot be parsed.
-     * @throws MissingArgumentException If the description or either date is absent.
+     * @param fields the save-file line split into type, done flag and payload
+     * @return the reconstructed event
+     * @throws MissingArgumentException if the description or either date is missing
+     * @throws InvalidDateException if a date cannot be parsed
+     * @throws InvalidDurationException if the end date falls before the start date
      */
     public static Event fromFileString(String[] fields)
             throws InvalidDurationException, InvalidDateException, MissingArgumentException {
@@ -66,8 +66,6 @@ public class Event extends Task {
 
     @Override
     public String toFileString() {
-        return "E " + super.toFileString() + String.format(" /from %s /to %s",
-                eventStart,
-                eventEnd);
+        return "E " + super.toFileString() + String.format(" /from %s /to %s", eventStart, eventEnd);
     }
 }

@@ -104,4 +104,20 @@ public class UiTest {
         ui.goodbye();
         assertEquals("Bye. Hope to see you again soon!", printed());
     }
+
+    @Test
+    public void showFound_numbersMatchesFromOne_notTheirOriginalPositions() {
+        TaskList found = new TaskList();
+        found.addTask(new ToDo("read book"));
+        found.addTask(new ToDo("return book"));
+        ui.showFound(found);
+        assertEquals(String.format("Here are the matching tasks in your list:%n"
+                + "1.[T][ ] read book%n2.[T][ ] return book"), printed());
+    }
+
+    @Test
+    public void showFound_emptyList_printsOnlyTheHeading() {
+        ui.showFound(new TaskList());
+        assertEquals("Here are the matching tasks in your list:", printed());
+    }
 }

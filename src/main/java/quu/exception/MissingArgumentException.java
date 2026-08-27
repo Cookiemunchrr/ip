@@ -1,15 +1,14 @@
 package quu.exception;
 
 /**
- * Signals that a command was given without all the arguments it needs.
- * The message shows the expected usage so the user can retype the command.
+ * Thrown when a command is missing an argument it needs.
  */
 public class MissingArgumentException extends QuuException {
 
     /**
-     * Constructs an exception showing the expected command format.
+     * Creates the exception, showing the user the format the command expects.
      *
-     * @param usage Expected usage, for example {@code todo <task>}.
+     * @param usage the expected form of the command, for example {@code todo <task>}
      */
     public MissingArgumentException(String usage) {
         super("Invalid format. Please follow this format: " + usage);

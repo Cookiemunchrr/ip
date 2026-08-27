@@ -1,16 +1,18 @@
 package quu.exception;
 
 /**
- * Base class for every error Quu reports to the user.
- * The message of a {@code QuuException} is written straight to the console, so
- * it should read as an explanation aimed at the user rather than at a developer.
+ * Base class for every error the chatbot expects and can recover from.
+ *
+ * <p>The main loop catches this one type, so a new failure mode can be added by
+ * subclassing it without touching the loop. The message is written for the user to
+ * read, not for a developer, and is printed as-is.
  */
 public class QuuException extends Exception {
 
     /**
-     * Constructs an exception carrying a user-facing message.
+     * Creates an exception carrying a message meant for the user.
      *
-     * @param message Text explaining what went wrong.
+     * @param message the text shown to the user
      */
     public QuuException(String message) {
         super(message);

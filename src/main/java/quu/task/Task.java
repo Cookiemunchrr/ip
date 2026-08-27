@@ -1,27 +1,39 @@
 package quu.task;
 
 /**
- * Represents a single task tracked by Quu.
- * A task holds a description and a done/not-done flag; subclasses add their own
- * date information and their own prefix in the displayed and saved forms.
+ * A single item in the task list.
+ *
+ * <p>{@code Task} holds the parts every kind of task shares: a description and
+ * whether it has been completed. Subclasses such as {@link ToDo}, {@link Deadline}
+ * and {@link Event} add their own extra details and their own display prefix.
  */
 public class Task {
-    protected boolean isDone = false;
-    protected String description;
+    private final String description;
+    private boolean isDone = false;
 
     /**
-     * Constructs a task that is initially not done.
+     * Creates a task that is not yet done.
      *
-     * @param description Text describing what the task is.
+     * @param description text describing what the task is
      */
     public Task(String description) {
         this.description = description;
     }
 
+    /**
+     * Returns whether this task has been marked as done.
+     *
+     * @return true if the task is done
+     */
     public boolean isDone() {
         return isDone;
     }
 
+    /**
+     * Returns the text describing this task, without any status or type markers.
+     *
+     * @return the task description
+     */
     public String getDescription() {
         return description;
     }
@@ -36,26 +48,23 @@ public class Task {
         isDone = false;
     }
 
+    /**
+     * Returns the task as shown to the user, for example {@code [X] read book}.
+     */
     @Override
     public String toString() {
-        if (isDone) {
-            return String.format("[X] %s", description);
-        } else {
-            return String.format("[ ] %s", description);
-        }
+        String statusIcon = isDone ? "X" : " ";
+        return String.format("[%s] %s", statusIcon, description);
     }
 
     /**
-     * Returns the save-file representation of this task.
-     * Subclasses prepend their own type letter to this value.
+     * Returns the task in the format used in the save file, for example
+     * {@code | 1 | read book}.
      *
-     * @return The done flag and description, separated by pipes.
+     * @return the save-file representation of this task
      */
     public String toFileString() {
-        if (isDone) {
-            return String.format("| 1 | %s", description);
-        } else {
-            return String.format("| 0 | %s", description);
-        }
+        String doneFlag = isDone ? "1" : "0";
+        return String.format("| %s | %s", doneFlag, description);
     }
 }

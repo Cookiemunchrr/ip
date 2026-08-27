@@ -3,25 +3,25 @@ package quu.task;
 import quu.exception.MissingArgumentException;
 
 /**
- * Represents a task with no associated date.
+ * A task with only a description and no associated date.
  */
 public class ToDo extends Task {
 
     /**
-     * Constructs a to-do that is initially not done.
+     * Creates a to-do.
      *
-     * @param description Text describing what the task is.
+     * @param description text describing what the task is
      */
     public ToDo(String description) {
         super(description);
     }
 
     /**
-     * Reconstructs a to-do from the fields of one save-file line.
+     * Rebuilds a to-do from a line of the save file.
      *
-     * @param fields Line split into type letter, done flag, and description.
-     * @return The reconstructed to-do.
-     * @throws MissingArgumentException If the description is absent or blank.
+     * @param fields the save-file line split into type, done flag and description
+     * @return the reconstructed to-do
+     * @throws MissingArgumentException if the description is missing or blank
      */
     public static ToDo fromFileString(String[] fields) throws MissingArgumentException {
         try {

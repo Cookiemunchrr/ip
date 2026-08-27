@@ -33,6 +33,6 @@ public class StorageTest {
         TaskList loaded = storage.readFile();
 
         assertEquals(1, loaded.getSize());
-        assertTrue(loaded.getItemAtIndex(0).toString().contains("read book"));
+        assertTrue(loaded.getTaskAt(0).toString().contains("read book"));
     }
 }

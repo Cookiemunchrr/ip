@@ -1,14 +1,14 @@
 package quu.exception;
 
 /**
- * Signals that no task exists at the one-based position the user gave.
+ * Thrown when a task number is well formed but no task sits at that position.
  */
 public class TaskNotFoundException extends QuuException {
 
     /**
-     * Constructs an exception naming the position that was out of range.
+     * Creates the exception, naming the position that held no task.
      *
-     * @param index One-based task number the user typed.
+     * @param index the one-based position the user asked for
      */
     public TaskNotFoundException(int index) {
         super("There's no task at " + index + " use list to check available tasks.");

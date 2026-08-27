@@ -8,19 +8,19 @@ import quu.exception.InvalidDateException;
 import quu.exception.MissingArgumentException;
 
 /**
- * Represents a task that must be completed by a particular date.
+ * A task that must be completed by a given date.
  */
 public class Deadline extends Task {
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM d yyyy");
 
-    protected LocalDate deadline;
+    private final LocalDate deadline;
 
     /**
-     * Constructs a deadline that is initially not done.
+     * Creates a deadline.
      *
-     * @param description Text describing what the task is.
-     * @param deadline Due date in ISO form, for example 2026-06-06.
-     * @throws DateTimeParseException If the date is not in ISO form.
+     * @param description text describing what the task is
+     * @param deadline the due date in ISO form, {@code yyyy-mm-dd}
+     * @throws DateTimeParseException if the date is not in ISO form
      */
     public Deadline(String description, String deadline) {
         super(description);
@@ -28,12 +28,12 @@ public class Deadline extends Task {
     }
 
     /**
-     * Reconstructs a deadline from the fields of one save-file line.
+     * Rebuilds a deadline from a line of the save file.
      *
-     * @param fields Line split into type letter, done flag, and the rest.
-     * @return The reconstructed deadline.
-     * @throws MissingArgumentException If the description or the date is absent.
-     * @throws InvalidDateException If the date cannot be parsed.
+     * @param fields the save-file line split into type, done flag and payload
+     * @return the reconstructed deadline
+     * @throws MissingArgumentException if the description or the due date is missing
+     * @throws InvalidDateException if the due date cannot be parsed
      */
     public static Deadline fromFileString(String[] fields)
             throws MissingArgumentException, InvalidDateException {
@@ -49,8 +49,7 @@ public class Deadline extends Task {
 
     @Override
     public String toString() {
-        return "[D]" + super.toString()
-                + String.format(" (by: %s)", deadline.format(DISPLAY_FORMAT));
+        return "[D]" + super.toString() + String.format(" (by: %s)", deadline.format(DISPLAY_FORMAT));
     }
 
     @Override

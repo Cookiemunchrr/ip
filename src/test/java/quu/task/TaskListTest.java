@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 import quu.exception.TaskNotFoundException;
 
 /**
- * Tests {@link TaskList}'s bookkeeping, including its index bounds.
+ * Tests {@link TaskList}'s bookkeeping, its index bounds, and its keyword search.
  *
- * <p>Note the deliberate asymmetry these tests pin down: {@code getItemAtIndex} is zero-based
+ * <p>Note the deliberate asymmetry these tests pin down: {@code getTaskAt} is zero-based
  * while {@code removeTask}, {@code markTask} and {@code unmarkTask} are one-based,
  * because the latter three take the number the user typed.
  */
@@ -29,7 +29,7 @@ public class TaskListTest {
     }
 
     @Test
-    public void addTask_newTask_sizeIncreases() {
+    public void addTask_increasesSize() {
         TaskList taskList = new TaskList();
         assertEquals(0, taskList.getSize());
         taskList.addTask(new ToDo("read book"));
@@ -37,60 +37,113 @@ public class TaskListTest {
     }
 
     @Test
-    public void getItemAtIndex_populatedList_zeroBasedTaskReturned() {
+    public void getTaskAt_isZeroBased() {
         TaskList taskList = listOf("first", "second");
-        assertTrue(taskList.getItemAtIndex(0).toString().contains("first"));
-        assertTrue(taskList.getItemAtIndex(1).toString().contains("second"));
+        assertTrue(taskList.getTaskAt(0).toString().contains("first"));
+        assertTrue(taskList.getTaskAt(1).toString().contains("second"));
     }
 
     @Test
-    public void removeTask_oneBasedIndex_removedTaskReturned() throws TaskNotFoundException {
+    public void removeTask_isOneBased_andReturnsRemovedTask() throws TaskNotFoundException {
         TaskList taskList = listOf("first", "second");
         Task removed = taskList.removeTask(1);
         assertTrue(removed.toString().contains("first"));
         assertEquals(1, taskList.getSize());
-        assertTrue(taskList.getItemAtIndex(0).toString().contains("second"));
+        assertTrue(taskList.getTaskAt(0).toString().contains("second"));
     }
 
     @Test
-    public void removeTask_indexZero_exceptionThrown() {
+    public void removeTask_indexZero_throwsTaskNotFound() {
         TaskList taskList = listOf("first");
         assertThrows(TaskNotFoundException.class, () -> taskList.removeTask(0));
     }
 
     @Test
-    public void removeTask_indexPastEnd_exceptionThrown() {
+    public void removeTask_indexPastEnd_throwsTaskNotFound() {
         TaskList taskList = listOf("first");
         assertThrows(TaskNotFoundException.class, () -> taskList.removeTask(2));
     }
 
     @Test
-    public void markTask_oneBasedIndex_taskMarked() throws TaskNotFoundException {
+    public void markTask_marksTaskAtOneBasedIndex() throws TaskNotFoundException {
         TaskList taskList = listOf("first", "second");
         Task marked = taskList.markTask(2);
         assertEquals("[T][X] second", marked.toString());
-        assertEquals("[T][ ] first", taskList.getItemAtIndex(0).toString());
+        assertEquals("[T][ ] first", taskList.getTaskAt(0).toString());
     }
 
     @Test
-    public void unmarkTask_markedTask_taskUnmarked() throws TaskNotFoundException {
+    public void unmarkTask_clearsAPreviouslyMarkedTask() throws TaskNotFoundException {
         TaskList taskList = listOf("first");
         taskList.markTask(1);
         assertEquals("[T][ ] first", taskList.unmarkTask(1).toString());
     }
 
     @Test
-    public void markTask_indexOutOfRange_exceptionThrown() {
+    public void markTask_outOfRange_throwsTaskNotFound() {
         TaskList taskList = listOf("first");
         assertThrows(TaskNotFoundException.class, () -> taskList.markTask(2));
     }
 
     @Test
-    public void constructor_existingList_contentsAdopted() {
+    public void constructor_withExistingList_adoptsItsContents() {
         List<Task> existing = new ArrayList<>();
         existing.add(new ToDo("read book"));
         TaskList taskList = new TaskList(existing);
         assertEquals(1, taskList.getSize());
-        assertEquals("[T][ ] read book", taskList.getItemAtIndex(0).toString());
+        assertEquals("[T][ ] read book", taskList.getTaskAt(0).toString());
+    }
+
+    @Test
+    public void buildFoundList_keywordInSomeDescriptions_returnsOnlyThoseTasks() {
+        TaskList taskList = listOf("read book", "buy milk", "return book");
+        TaskList found = taskList.buildFoundList("book");
+        assertEquals(2, found.getSize());
+        assertEquals("[T][ ] read book", found.getTaskAt(0).toString());
+        assertEquals("[T][ ] return book", found.getTaskAt(1).toString());
+    }
+
+    @Test
+    public void buildFoundList_differingCase_stillMatches() {
+        TaskList taskList = listOf("Read Book");
+        assertEquals(1, taskList.buildFoundList("book").getSize());
+        assertEquals(1, taskList.buildFoundList("BOOK").getSize());
+    }
+
+    @Test
+    public void buildFoundList_partOfAWord_stillMatches() {
+        TaskList taskList = listOf("read book");
+        assertEquals(1, taskList.buildFoundList("oo").getSize());
+    }
+
+    @Test
+    public void buildFoundList_noMatch_returnsEmptyList() {
+        TaskList taskList = listOf("read book", "buy milk");
+        assertEquals(0, taskList.buildFoundList("laundry").getSize());
+    }
+
+    @Test
+    public void buildFoundList_searchesDescriptionOnly_notTheRenderedDate() {
+        TaskList taskList = new TaskList();
+        taskList.addTask(new Deadline("return book", "2026-06-06"));
+        // "Jun" appears in the task's printed form but not in its description.
+        assertEquals(0, taskList.buildFoundList("Jun").getSize());
+        assertEquals(1, taskList.buildFoundList("return").getSize());
+    }
+
+    @Test
+    public void buildFoundList_sharesTaskObjects_soMarkingIsVisibleInBothLists() {
+        TaskList taskList = listOf("read book");
+        TaskList found = taskList.buildFoundList("book");
+        found.getTaskAt(0).mark();
+        assertEquals("[T][X] read book", taskList.getTaskAt(0).toString());
+    }
+
+    @Test
+    public void buildFoundList_isASeparateList_soAddingToItLeavesTheOriginalAlone() {
+        TaskList taskList = listOf("read book", "buy milk");
+        TaskList found = taskList.buildFoundList("book");
+        found.addTask(new ToDo("extra"));
+        assertEquals(2, taskList.getSize());
     }
 }
