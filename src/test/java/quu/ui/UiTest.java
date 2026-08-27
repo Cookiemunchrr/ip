@@ -80,8 +80,8 @@ public class UiTest {
     @Test
     public void showList_numbersTasksFromOneInInsertionOrder() {
         TaskList taskList = new TaskList();
-        taskList.add_to_list(new ToDo("first"));
-        taskList.add_to_list(new ToDo("second"));
+        taskList.addTask(new ToDo("first"));
+        taskList.addTask(new ToDo("second"));
         ui.showList(taskList);
         assertEquals(String.format("Here are the tasks in your list:%n"
                 + "1.[T][ ] first%n2.[T][ ] second"), printed());
