@@ -13,10 +13,24 @@ import quu.task.Task;
 import quu.task.TaskList;
 import quu.ui.Ui;
 
+/**
+ * Entry point of the Quu chatbot.
+ * Wires together the {@link Ui}, {@link Parser}, {@link Storage} and
+ * {@link TaskList}, then runs the read-evaluate-print loop until the
+ * user types {@code bye}.
+ */
 public class Quu {
     private static final String NAME = "Quu";
     private static final String TASK_FILE = "./data/Quu.txt";
 
+    /**
+     * Starts Quu: loads any saved tasks, then reads and executes user
+     * commands until the user exits. Every successful command saves the
+     * updated task list back to disk, and recoverable errors are reported
+     * to the user without ending the session.
+     *
+     * @param args Command line arguments; not used.
+     */
     public static void main(String[] args) {
         Ui ui = new Ui();
         Parser parser = new Parser();
