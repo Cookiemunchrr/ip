@@ -80,8 +80,8 @@ public class UiTest {
     @Test
     public void showList_numbersTasksFromOneInInsertionOrder() {
         TaskList taskList = new TaskList();
-        taskList.add_to_list(new ToDo("first"));
-        taskList.add_to_list(new ToDo("second"));
+        taskList.addTask(new ToDo("first"));
+        taskList.addTask(new ToDo("second"));
         ui.showList(taskList);
         assertEquals(String.format("Here are the tasks in your list:%n"
                 + "1.[T][ ] first%n2.[T][ ] second"), printed());
@@ -103,5 +103,21 @@ public class UiTest {
     public void goodbye_printsTheFarewell() {
         ui.goodbye();
         assertEquals("Bye. Hope to see you again soon!", printed());
+    }
+
+    @Test
+    public void showFound_numbersMatchesFromOne_notTheirOriginalPositions() {
+        TaskList found = new TaskList();
+        found.addTask(new ToDo("read book"));
+        found.addTask(new ToDo("return book"));
+        ui.showFound(found);
+        assertEquals(String.format("Here are the matching tasks in your list:%n"
+                + "1.[T][ ] read book%n2.[T][ ] return book"), printed());
+    }
+
+    @Test
+    public void showFound_emptyList_printsOnlyTheHeading() {
+        ui.showFound(new TaskList());
+        assertEquals("Here are the matching tasks in your list:", printed());
     }
 }
