@@ -107,47 +107,47 @@ public class Quu {
     private static void executeCommand(String[] parts, TaskList taskList, Parser parser, Ui ui)
             throws QuuException {
         switch (parts[0]) {
-        case "list":
-            ui.showList(taskList);
-            break;
-        case "mark": {
-            Task task = taskList.markTask(parser.parseTaskNumber(parts));
-            ui.showMarked(task);
-            break;
-        }
-        case "unmark": {
-            Task task = taskList.unmarkTask(parser.parseTaskNumber(parts));
-            ui.showUnMarked(task);
-            break;
-        }
-        case "todo": {
-            Task task = parser.parseToDo(parts);
-            taskList.addTask(task);
-            ui.showAdded(task, taskList.getSize());
-            break;
-        }
-        case "deadline": {
-            Task task = parser.parseDeadline(parts);
-            taskList.addTask(task);
-            ui.showAdded(task, taskList.getSize());
-            break;
-        }
-        case "event": {
-            Task task = parser.parseEvent(parts);
-            taskList.addTask(task);
-            ui.showAdded(task, taskList.getSize());
-            break;
-        }
-        case "delete": {
-            Task task = taskList.removeTask(parser.parseTaskNumber(parts));
-            ui.showRemoved(task, taskList.getSize());
-            break;
-        }
-        case "find":
-            ui.showFound(taskList.buildFoundList(parser.parseKeyword(parts)));
-            break;
-        default:
-            throw new UnknownCommandException(parts[0]);
+            case "list":
+                ui.showList(taskList);
+                break;
+            case "mark": {
+                Task task = taskList.markTask(parser.parseTaskNumber(parts));
+                ui.showMarked(task);
+                break;
+            }
+            case "unmark": {
+                Task task = taskList.unmarkTask(parser.parseTaskNumber(parts));
+                ui.showUnMarked(task);
+                break;
+            }
+            case "todo": {
+                Task task = parser.parseToDo(parts);
+                taskList.addTask(task);
+                ui.showAdded(task, taskList.getSize());
+                break;
+            }
+            case "deadline": {
+                Task task = parser.parseDeadline(parts);
+                taskList.addTask(task);
+                ui.showAdded(task, taskList.getSize());
+                break;
+            }
+            case "event": {
+                Task task = parser.parseEvent(parts);
+                taskList.addTask(task);
+                ui.showAdded(task, taskList.getSize());
+                break;
+            }
+            case "delete": {
+                Task task = taskList.removeTask(parser.parseTaskNumber(parts));
+                ui.showRemoved(task, taskList.getSize());
+                break;
+            }
+            case "find":
+                ui.showFound(taskList.buildFoundList(parser.parseKeyword(parts)));
+                break;
+            default:
+                throw new UnknownCommandException(parts[0]);
         }
     }
 }
