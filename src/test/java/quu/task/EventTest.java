@@ -29,8 +29,8 @@ public class EventTest {
 
     @Test
     public void constructor_endBeforeStart_throwsInvalidDuration() {
-        assertThrows(InvalidDurationException.class,
-                () -> new Event("project meeting", "2026-08-08", "2026-08-06"));
+        assertThrows(InvalidDurationException.class, () ->
+                new Event("project meeting", "2026-08-08", "2026-08-06"));
     }
 
     @Test
