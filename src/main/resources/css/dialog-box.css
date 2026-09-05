@@ -1,0 +1,51 @@
+.label {
+    -fx-background-color: linear-gradient(to bottom right, #00ffbf, #00ddff);
+    -fx-border-color: #d55e00 #009e73 #cc79a7 #0072b2;
+    -fx-border-width: 2px;
+    -fx-background-radius: 1em 1em 0 1em;
+    -fx-border-radius: 1em 1em 0 1em;
+}
+
+.reply-label {
+    -fx-background-radius: 1em 1em 1em 0;
+    -fx-border-radius: 1em 1em 1em 0;
+}
+
+/*
+ * Each command class is added on top of .reply-label. These classes remain below
+ * .label and .reply-label so their background colors take precedence in JavaFX CSS.
+ */
+.add-label {
+    -fx-background-color: yellow;
+}
+
+.marked-label {
+    -fx-background-color: palegreen;
+}
+
+.unmarked-label {
+    -fx-background-color: khaki;
+}
+
+.delete-label {
+    -fx-background-color: lightpink;
+}
+
+.list-label {
+    -fx-background-color: lightskyblue;
+}
+
+.find-label {
+    -fx-background-color: plum;
+}
+
+.error-label {
+    -fx-background-color: lightcoral;
+}
+
+#displayPicture {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 5, 5);
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+    -fx-rotate: 0;
+}

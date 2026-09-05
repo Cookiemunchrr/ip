@@ -52,7 +52,7 @@ public class Storage {
                 if (line.isEmpty()) {
                     continue;
                 }
-                String[] fields = line.split("\\s*\\|\\s*", 3);   // [type, doneFlag, description]
+                String[] fields = line.split("\\s*\\|\\s*", 3); // [type, doneFlag, description]
                 if (fields.length < 3) {
                     throw new InvalidFileContents("Corrupted line in " + filePath + ": " + line);
                 }
@@ -103,7 +103,7 @@ public class Storage {
         if (dir != null && !dir.exists()) {
             dir.mkdirs();
         }
-        try (FileWriter fw = new FileWriter(f)) {   // creates the file if absent, truncates if present
+        try (FileWriter fw = new FileWriter(f)) { // creates the file if absent, truncates if present
             for (Task task : todoList) {
                 fw.write(task.toFileString() + System.lineSeparator());
             }

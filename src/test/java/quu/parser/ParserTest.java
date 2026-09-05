@@ -30,14 +30,14 @@ public class ParserTest {
 
     @Test
     public void parseToDo_blankDescription_throwsMissingArgument() {
-        assertThrows(MissingArgumentException.class,
-                () -> parser.parseToDo(new String[]{"todo", "   "}));
+        assertThrows(MissingArgumentException.class, () ->
+                parser.parseToDo(new String[]{"todo", "   "}));
     }
 
     @Test
     public void parseToDo_noDescription_throwsMissingArgumentNamingTheFormat() {
-        MissingArgumentException thrown = assertThrows(MissingArgumentException.class,
-                () -> parser.parseToDo(new String[]{"todo"}));
+        MissingArgumentException thrown = assertThrows(MissingArgumentException.class, () ->
+                parser.parseToDo(new String[]{"todo"}));
         assertEquals("Invalid format. Please follow this format: todo <task>", thrown.getMessage());
     }
 
@@ -50,16 +50,16 @@ public class ParserTest {
 
     @Test
     public void parseDeadline_missingByClause_throwsMissingArgument() {
-        MissingArgumentException thrown = assertThrows(MissingArgumentException.class,
-                () -> parser.parseDeadline(new String[]{"deadline", "return book"}));
+        MissingArgumentException thrown = assertThrows(MissingArgumentException.class, () ->
+                parser.parseDeadline(new String[]{"deadline", "return book"}));
         assertEquals("Invalid format. Please follow this format: deadline <task> /by <yyyy-mm-dd>",
                 thrown.getMessage());
     }
 
     @Test
     public void parseDeadline_unparseableDate_throwsInvalidDateNamingTheInput() {
-        InvalidDateException thrown = assertThrows(InvalidDateException.class,
-                () -> parser.parseDeadline(new String[]{"deadline", "return book /by Sunday"}));
+        InvalidDateException thrown = assertThrows(InvalidDateException.class, () ->
+                parser.parseDeadline(new String[]{"deadline", "return book /by Sunday"}));
         assertEquals("'Sunday' is not a valid date. Use yyyy-mm-dd, e.g. 2026-06-06.",
                 thrown.getMessage());
     }
@@ -73,16 +73,16 @@ public class ParserTest {
 
     @Test
     public void parseEvent_missingToClause_throwsMissingArgument() {
-        MissingArgumentException thrown = assertThrows(MissingArgumentException.class,
-                () -> parser.parseEvent(new String[]{"event", "project meeting /from 2026-08-06"}));
+        MissingArgumentException thrown = assertThrows(MissingArgumentException.class, () ->
+                parser.parseEvent(new String[]{"event", "project meeting /from 2026-08-06"}));
         assertEquals("Invalid format. Please follow this format: "
                 + "event <task> /from <yyyy-mm-dd> /to <yyyy-mm-dd>", thrown.getMessage());
     }
 
     @Test
     public void parseEvent_endBeforeStart_throwsInvalidDuration() {
-        assertThrows(InvalidDurationException.class,
-                () -> parser.parseEvent(new String[]{"event", "project meeting /from 2026-08-08 /to 2026-08-06"}));
+        assertThrows(InvalidDurationException.class, () ->
+                parser.parseEvent(new String[]{"event", "project meeting /from 2026-08-08 /to 2026-08-06"}));
     }
 
     @Test
@@ -93,15 +93,15 @@ public class ParserTest {
 
     @Test
     public void parseTaskNumber_nonNumeric_throwsInvalidIndexNamingTheInput() {
-        InvalidIndexException thrown = assertThrows(InvalidIndexException.class,
-                () -> parser.parseTaskNumber(new String[]{"mark", "abc"}));
+        InvalidIndexException thrown = assertThrows(InvalidIndexException.class, () ->
+                parser.parseTaskNumber(new String[]{"mark", "abc"}));
         assertEquals("\"abc\" isn't a task number", thrown.getMessage());
     }
 
     @Test
     public void parseTaskNumber_noArgument_throwsMissingArgument() {
-        MissingArgumentException thrown = assertThrows(MissingArgumentException.class,
-                () -> parser.parseTaskNumber(new String[]{"mark"}));
+        MissingArgumentException thrown = assertThrows(MissingArgumentException.class, () ->
+                parser.parseTaskNumber(new String[]{"mark"}));
         assertEquals("Invalid format. Please follow this format: mark <task number>",
                 thrown.getMessage());
     }

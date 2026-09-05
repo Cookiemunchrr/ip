@@ -4,11 +4,10 @@ import quu.task.Task;
 import quu.task.TaskList;
 
 /**
- * Handles everything the program prints to the user.
+ * Builds every message the program shows the user.
  *
- * <p>Keeping all output in one class means the wording of a message can be changed
- * in a single place, and the rest of the program never needs to know how a task is
- * rendered.
+ * <p>Each method returns its message as a {@code String}, allowing the terminal and
+ * JavaFX front ends to use the same wording.
  */
 public class Ui {
     private static final String BANNER =
@@ -18,119 +17,133 @@ public class Ui {
             + "| |_| | |_| | |_| |\n"
             + " \\__\\_\\\\__,_|\\__,_|\n";
 
-    /** Prints the program's ASCII-art logo. */
-    public void showBanner() {
-        System.out.println(BANNER);
+    /**
+     * Returns the program's ASCII-art logo.
+     *
+     * @return the logo
+     */
+    public String getBanner() {
+        return BANNER;
     }
 
     /**
-     * Prints the opening greeting.
+     * Returns the opening greeting.
      *
      * @param name the name the chatbot introduces itself by
+     * @return the greeting
      */
-    public void greet(String name) {
-        System.out.printf("Hello! I'm %s.%nWhat can I do for you?%n%n", name);
+    public String getGreeting(String name) {
+        return String.format("Hello! I'm %s.%nWhat can I do for you?", name);
     }
 
     /**
-     * Confirms that a task was added.
+     * Returns the confirmation that a task was added.
      *
      * @param task the task that was added
      * @param size the number of tasks now in the list
+     * @return the confirmation message
      */
-    public void showAdded(Task task, int size) {
-        System.out.printf("Got it. I've added this task:%n  %s%nNow you have %d tasks in the list.%n",
+    public String getAdded(Task task, int size) {
+        return String.format("Got it. I've added this task:%n  %s%nNow you have %d tasks in the list.",
                 task, size);
     }
 
     /**
-     * Confirms that a task was removed.
+     * Returns the confirmation that a task was removed.
      *
      * @param task the task that was removed
      * @param size the number of tasks left in the list
+     * @return the confirmation message
      */
-    public void showRemoved(Task task, int size) {
-        System.out.printf("Noted. I've removed this task:%n %s%nNow you have %d tasks in the list.%n",
+    public String getRemoved(Task task, int size) {
+        return String.format("Noted. I've removed this task:%n %s%nNow you have %d tasks in the list.",
                 task, size);
     }
 
     /**
-     * Confirms that a task was marked as done.
+     * Returns the confirmation that a task was marked as done.
      *
      * @param task the task that was marked
+     * @return the confirmation message
      */
-    public void showMarked(Task task) {
-        System.out.printf("Nice! I've marked this task as done:%n %s%n", task);
+    public String getMarked(Task task) {
+        return String.format("Nice! I've marked this task as done:%n %s", task);
     }
 
     /**
-     * Confirms that a task was marked as not done.
+     * Returns the confirmation that a task was marked as not done.
      *
      * @param task the task that was unmarked
+     * @return the confirmation message
      */
-    public void showUnMarked(Task task) {
-        System.out.printf("OK, I've marked this task as not done yet:%n %s%n", task);
+    public String getUnmarked(Task task) {
+        return String.format("OK, I've marked this task as not done yet:%n %s", task);
     }
 
     /**
-     * Prints every task in the list, numbered from one.
+     * Returns every task in the list, numbered from one.
      *
-     * @param taskList the tasks to print
+     * @param taskList the tasks to render
+     * @return the heading followed by the numbered tasks
      */
-    public void showList(TaskList taskList) {
-        System.out.println("Here are the tasks in your list:" + buildNumberedList(taskList));
+    public String getList(TaskList taskList) {
+        return "Here are the tasks in your list:" + buildNumberedList(taskList);
     }
 
     /**
-     * Prints the tasks that matched a search, numbered from one.
+     * Returns the tasks that matched a search, numbered from one.
      *
      * @param taskList the matching tasks
+     * @return the heading followed by the numbered tasks
      */
-    public void showFound(TaskList taskList) {
-        System.out.println("Here are the matching tasks in your list:" + buildNumberedList(taskList));
+    public String getFound(TaskList taskList) {
+        return "Here are the matching tasks in your list:" + buildNumberedList(taskList);
     }
 
     /**
-     * Prints the message carried by an exception.
+     * Returns the message carried by an exception.
      *
-     * @param e the exception to report
+     * @param exception the exception to report
+     * @return the exception's message
      */
-    public void showException(Exception e) {
-        System.out.println(e.getMessage());
+    public String getException(Exception exception) {
+        return exception.getMessage();
     }
 
     /**
-     * Reports that tasks could not be saved to disk.
-     *
-     * @param message the detail to show the user
-     */
-    public void showSaveError(String message) {
-        System.out.println(message);
-    }
-
-    /**
-     * Reports that tasks could not be loaded from disk.
+     * Returns a report that tasks could not be saved to disk.
      *
      * @param message the detail to show the user
+     * @return the report
      */
-    public void showLoadingError(String message) {
-        System.out.println(message);
+    public String getSaveError(String message) {
+        return message;
     }
 
-    /** Prints the farewell shown when the user exits. */
-    public void goodbye() {
-        System.out.println("Bye. Hope to see you again soon!");
+    /**
+     * Returns a report that tasks could not be loaded from disk.
+     *
+     * @param message the detail to show the user
+     * @return the report
+     */
+    public String getLoadingError(String message) {
+        return message;
+    }
+
+    /**
+     * Returns the farewell shown when the user exits.
+     *
+     * @return the farewell
+     */
+    public String getGoodbye() {
+        return "Bye. Hope to see you again soon!";
     }
 
     /**
      * Builds the numbered lines for a task list, each on its own new line.
      *
-     * <p>Shared by {@link #showList(TaskList)} and {@link #showFound(TaskList)} so the
-     * two differ only in their heading. Returns an empty string for an empty list,
-     * which leaves the heading standing alone.
-     *
      * @param taskList the tasks to render
-     * @return the numbered lines, prefixed by a line separator each
+     * @return the numbered lines, each prefixed by a line separator
      */
     private String buildNumberedList(TaskList taskList) {
         StringBuilder lines = new StringBuilder();
