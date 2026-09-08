@@ -19,11 +19,15 @@ public class ToDo extends Task {
     /**
      * Rebuilds a to-do from a line of the save file.
      *
+     * <p>The caller must have checked that {@code fields} holds all three parts;
+     * {@link quu.storage.Storage#readFile()} rejects a shorter line before calling this.
+     *
      * @param fields the save-file line split into type, done flag and description
      * @return the reconstructed to-do
      * @throws MissingArgumentException if the description is missing or blank
      */
     public static ToDo fromFileString(String[] fields) throws MissingArgumentException {
+        assert fields.length >= 3 : "Storage checks the field count before rebuilding a task";
         try {
             if (fields[2].trim().isEmpty()) {
                 throw new MissingArgumentException(fields[0] + " <task>");

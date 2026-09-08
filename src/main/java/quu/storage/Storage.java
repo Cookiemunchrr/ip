@@ -81,6 +81,7 @@ public class Storage {
 
                 if (fields[1].equals("1")) {
                     task.mark();
+                    assert task.isDone() : "after marking the task, it should be done";
                 } else if (!fields[1].equals("0")) {
                     throw new InvalidFileContents("Corrupted line in " + filePath + ": " + line);
                 }

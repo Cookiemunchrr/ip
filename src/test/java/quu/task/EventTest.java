@@ -39,6 +39,12 @@ public class EventTest {
     }
 
     @Test
+    public void toString_sameStartAndEnd_rendersBothDates() throws InvalidDurationException {
+        Event event = new Event("project meeting", "2026-08-06", "2026-08-06");
+        assertEquals("[E][ ] project meeting (from: Aug 6 2026 to: Aug 6 2026)", event.toString());
+    }
+
+    @Test
     public void toFileString_thenFromFileString_roundTripsTask()
             throws InvalidDurationException, InvalidDateException, MissingArgumentException {
         Event original = new Event("project meeting", "2026-08-06", "2026-08-08");

@@ -38,6 +38,9 @@ public class Event extends Task {
     /**
      * Rebuilds an event from a line of the save file.
      *
+     * <p>The caller must have checked that {@code fields} holds all three parts;
+     * {@link quu.storage.Storage#readFile()} rejects a shorter line before calling this.
+     *
      * @param fields the save-file line split into type, done flag and payload
      * @return the reconstructed event
      * @throws MissingArgumentException if the description or either date is missing
@@ -46,6 +49,7 @@ public class Event extends Task {
      */
     public static Event fromFileString(String[] fields)
             throws InvalidDurationException, InvalidDateException, MissingArgumentException {
+        assert fields.length >= 3 : "Storage checks the field count before rebuilding a task";
         try {
             String[] descriptionAndDates = fields[2].split(" /from ", 2);
             String[] dates = descriptionAndDates[1].split(" /to ", 2);
@@ -59,6 +63,7 @@ public class Event extends Task {
 
     @Override
     public String toString() {
+        assert !eventEnd.isBefore(eventStart) : "the constructor rejects an end date before the start date";
         return "[E]" + super.toString() + String.format(" (from: %s to: %s)",
                 eventStart.format(DISPLAY_FORMAT),
                 eventEnd.format(DISPLAY_FORMAT));

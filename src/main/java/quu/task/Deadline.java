@@ -30,6 +30,9 @@ public class Deadline extends Task {
     /**
      * Rebuilds a deadline from a line of the save file.
      *
+     * <p>The caller must have checked that {@code fields} holds all three parts;
+     * {@link quu.storage.Storage#readFile()} rejects a shorter line before calling this.
+     *
      * @param fields the save-file line split into type, done flag and payload
      * @return the reconstructed deadline
      * @throws MissingArgumentException if the description or the due date is missing
@@ -37,6 +40,7 @@ public class Deadline extends Task {
      */
     public static Deadline fromFileString(String[] fields)
             throws MissingArgumentException, InvalidDateException {
+        assert fields.length >= 3 : "Storage checks the field count before rebuilding a task";
         try {
             String[] parts = fields[2].split(" /by ", 2);
             return new Deadline(parts[0], parts[1]);
