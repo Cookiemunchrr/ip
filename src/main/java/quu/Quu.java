@@ -169,48 +169,62 @@ public class Quu {
     /**
      * Carries out a single command and returns its reply.
      *
+     * <p>This method decides only <em>which</em> command was typed. What each command does
+     * lives in its own handler below, so that this switch stays a readable summary of the
+     * commands Quu understands.
+     *
      * @param parts the user input split into command and arguments
      * @return the text describing what the command did
      * @throws QuuException if the command is unknown or its arguments are unusable
      */
     private String executeCommand(String[] parts) throws QuuException {
-        switch (parts[0]) {
-            case "list":
-                commandType = COMMAND_LIST;
-                return ui.getList(taskList);
-            case "mark": {
-                commandType = COMMAND_MARK;
-                Task task = taskList.markTask(parser.parseTaskNumber(parts));
-                return ui.getMarked(task);
-            }
-            case "unmark": {
-                commandType = COMMAND_UNMARK;
-                Task task = taskList.unmarkTask(parser.parseTaskNumber(parts));
-                return ui.getUnmarked(task);
-            }
-            case "todo": {
-                Task task = parser.parseToDo(parts);
-                return handleAdd(task);
-            }
-            case "deadline": {
-                Task task = parser.parseDeadline(parts);
-                return handleAdd(task);
-            }
-            case "event": {
-                Task task = parser.parseEvent(parts);
-                return handleAdd(task);
-            }
-            case "delete": {
-                commandType = COMMAND_DELETE;
-                Task task = taskList.removeTask(parser.parseTaskNumber(parts));
-                return ui.getRemoved(task, taskList.getSize());
-            }
-            case "find":
-                commandType = COMMAND_FIND;
-                return ui.getFound(taskList.buildFoundList(parser.parseKeyword(parts)));
-            default:
-                throw new UnknownCommandException(parts[0]);
-        }
+        return switch (parts[0]) {
+            case "list" -> handleList();
+            case "mark" -> handleMark(parts);
+            case "unmark" -> handleUnmark(parts);
+            case "todo" -> handleAdd(parser.parseToDo(parts));
+            case "deadline" -> handleAdd(parser.parseDeadline(parts));
+            case "event" -> handleAdd(parser.parseEvent(parts));
+            case "delete" -> handleDelete(parts);
+            case "find" -> handleFind(parts);
+            default -> throw new UnknownCommandException(parts[0]);
+        };
+    }
+
+    /**
+     * Shows every task currently in the list.
+     *
+     * @return the numbered task list
+     */
+    private String handleList() {
+        commandType = COMMAND_LIST;
+        return ui.getList(taskList);
+    }
+
+    /**
+     * Marks the task the user named as done.
+     *
+     * @param parts the user input split into command and arguments
+     * @return the confirmation that the task was marked
+     * @throws QuuException if the task number is missing, not a number, or out of range
+     */
+    private String handleMark(String[] parts) throws QuuException {
+        commandType = COMMAND_MARK;
+        Task task = taskList.markTask(parser.parseTaskNumber(parts));
+        return ui.getMarked(task);
+    }
+
+    /**
+     * Marks the task the user named as not done.
+     *
+     * @param parts the user input split into command and arguments
+     * @return the confirmation that the task was unmarked
+     * @throws QuuException if the task number is missing, not a number, or out of range
+     */
+    private String handleUnmark(String[] parts) throws QuuException {
+        commandType = COMMAND_UNMARK;
+        Task task = taskList.unmarkTask(parser.parseTaskNumber(parts));
+        return ui.getUnmarked(task);
     }
 
     /**
@@ -227,5 +241,30 @@ public class Quu {
         commandType = COMMAND_ADD;
         taskList.addTask(task);
         return ui.getAdded(task, taskList.getSize());
+    }
+
+    /**
+     * Removes the task the user named.
+     *
+     * @param parts the user input split into command and arguments
+     * @return the confirmation that the task was removed
+     * @throws QuuException if the task number is missing, not a number, or out of range
+     */
+    private String handleDelete(String[] parts) throws QuuException {
+        commandType = COMMAND_DELETE;
+        Task task = taskList.removeTask(parser.parseTaskNumber(parts));
+        return ui.getRemoved(task, taskList.getSize());
+    }
+
+    /**
+     * Lists the tasks whose description contains the keyword the user gave.
+     *
+     * @param parts the user input split into command and arguments
+     * @return the numbered list of matching tasks
+     * @throws QuuException if the keyword is missing or blank
+     */
+    private String handleFind(String[] parts) throws QuuException {
+        commandType = COMMAND_FIND;
+        return ui.getFound(taskList.buildFoundList(parser.parseKeyword(parts)));
     }
 }
