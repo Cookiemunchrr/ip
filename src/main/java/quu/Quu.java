@@ -189,22 +189,16 @@ public class Quu {
                 return ui.getUnmarked(task);
             }
             case "todo": {
-                commandType = COMMAND_ADD;
                 Task task = parser.parseToDo(parts);
-                taskList.addTask(task);
-                return ui.getAdded(task, taskList.getSize());
+                return handleAdd(task);
             }
             case "deadline": {
-                commandType = COMMAND_ADD;
                 Task task = parser.parseDeadline(parts);
-                taskList.addTask(task);
-                return ui.getAdded(task, taskList.getSize());
+                return handleAdd(task);
             }
             case "event": {
-                commandType = COMMAND_ADD;
                 Task task = parser.parseEvent(parts);
-                taskList.addTask(task);
-                return ui.getAdded(task, taskList.getSize());
+                return handleAdd(task);
             }
             case "delete": {
                 commandType = COMMAND_DELETE;
@@ -217,5 +211,21 @@ public class Quu {
             default:
                 throw new UnknownCommandException(parts[0]);
         }
+    }
+
+    /**
+     * Adds an already-parsed task to the list and reports it.
+     *
+     * <p>Shared by the todo, deadline and event commands, which differ only in how the
+     * task is built and not in what happens to it once it exists. The caller does the
+     * parsing, so this method never has to ask which kind of task it was given.
+     *
+     * @param task the task to add
+     * @return the confirmation that the task was added
+     */
+    private String handleAdd(Task task) {
+        commandType = COMMAND_ADD;
+        taskList.addTask(task);
+        return ui.getAdded(task, taskList.getSize());
     }
 }
