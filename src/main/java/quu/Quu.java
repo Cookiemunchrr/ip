@@ -26,21 +26,12 @@ public class Quu {
     private static final String TASK_FILE = "./data/Quu.txt";
     private static final String EXIT_COMMAND = "bye";
 
-    private static final String COMMAND_NONE = "none";
-    private static final String COMMAND_ADD = "add";
-    private static final String COMMAND_MARK = "mark";
-    private static final String COMMAND_UNMARK = "unmark";
-    private static final String COMMAND_DELETE = "delete";
-    private static final String COMMAND_LIST = "list";
-    private static final String COMMAND_FIND = "find";
-    private static final String COMMAND_ERROR = "error";
-
     private final Ui ui = new Ui();
     private final Parser parser = new Parser();
     private final Storage storage = new Storage(TASK_FILE);
     private final TaskList taskList;
     private final String loadMessage;
-    private String commandType = COMMAND_NONE;
+    private CommandType commandType = CommandType.NONE;
 
     /**
      * Creates a chatbot whose task list is loaded from disk.
@@ -85,13 +76,13 @@ public class Quu {
             try {
                 storage.writeFile(taskList.getTodoList());
             } catch (IOException e) {
-                commandType = COMMAND_ERROR;
+                commandType = CommandType.ERROR;
                 return response + System.lineSeparator()
                         + ui.getSaveError(String.format("Unable to write to file, %s", e.getMessage()));
             }
             return response;
         } catch (QuuException e) {
-            commandType = COMMAND_ERROR;
+            commandType = CommandType.ERROR;
             return ui.getException(e);
         }
     }
@@ -99,9 +90,9 @@ public class Quu {
     /**
      * Returns the category of the command handled by the last call to {@link #getResponse(String)}.
      *
-     * @return the command category, or {@code "none"} before a command is handled
+     * @return the command category, or {@link CommandType#NONE} before a command is handled
      */
-    public String getCommandType() {
+    public CommandType getCommandType() {
         return commandType;
     }
 
@@ -197,7 +188,7 @@ public class Quu {
      * @return the numbered task list
      */
     private String handleList() {
-        commandType = COMMAND_LIST;
+        commandType = CommandType.LIST;
         return ui.getList(taskList);
     }
 
@@ -209,7 +200,7 @@ public class Quu {
      * @throws QuuException if the task number is missing, not a number, or out of range
      */
     private String handleMark(String[] parts) throws QuuException {
-        commandType = COMMAND_MARK;
+        commandType = CommandType.MARK;
         Task task = taskList.markTask(parser.parseTaskNumber(parts));
         return ui.getMarked(task);
     }
@@ -222,7 +213,7 @@ public class Quu {
      * @throws QuuException if the task number is missing, not a number, or out of range
      */
     private String handleUnmark(String[] parts) throws QuuException {
-        commandType = COMMAND_UNMARK;
+        commandType = CommandType.UNMARK;
         Task task = taskList.unmarkTask(parser.parseTaskNumber(parts));
         return ui.getUnmarked(task);
     }
@@ -238,7 +229,7 @@ public class Quu {
      * @return the confirmation that the task was added
      */
     private String handleAdd(Task task) {
-        commandType = COMMAND_ADD;
+        commandType = CommandType.ADD;
         taskList.addTask(task);
         return ui.getAdded(task, taskList.getSize());
     }
@@ -251,7 +242,7 @@ public class Quu {
      * @throws QuuException if the task number is missing, not a number, or out of range
      */
     private String handleDelete(String[] parts) throws QuuException {
-        commandType = COMMAND_DELETE;
+        commandType = CommandType.DELETE;
         Task task = taskList.removeTask(parser.parseTaskNumber(parts));
         return ui.getRemoved(task, taskList.getSize());
     }
@@ -264,7 +255,7 @@ public class Quu {
      * @throws QuuException if the keyword is missing or blank
      */
     private String handleFind(String[] parts) throws QuuException {
-        commandType = COMMAND_FIND;
+        commandType = CommandType.FIND;
         return ui.getFound(taskList.buildFoundList(parser.parseKeyword(parts)));
     }
 }
