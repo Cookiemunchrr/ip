@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Scanner;
 
 import quu.exception.InvalidFileContents;
@@ -136,18 +135,18 @@ public class Storage {
      *
      * <p>Creates the parent directory and the file if they do not exist.
      *
-     * @param todoList the tasks to save
+     * @param taskList the tasks to save
      * @throws IOException if the file or its directory cannot be written
      */
-    public void writeFile(List<Task> todoList) throws IOException {
+    public void writeFile(TaskList taskList) throws IOException {
         File f = new File(filePath);
         File dir = f.getParentFile();
         if (dir != null && !dir.exists()) {
             dir.mkdirs();
         }
         try (FileWriter fw = new FileWriter(f)) { // creates the file if absent, truncates if present
-            for (Task task : todoList) {
-                fw.write(task.toFileString() + System.lineSeparator());
+            for (int i = 0; i < taskList.getSize(); i++) {
+                fw.write(taskList.getTaskAt(i).toFileString() + System.lineSeparator());
             }
         }
     }

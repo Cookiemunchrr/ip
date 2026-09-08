@@ -22,21 +22,15 @@ public class TaskList {
     }
 
     /**
-     * Creates a task list backed by an existing list of tasks.
+     * Creates a task list holding the given tasks.
      *
-     * @param todoList the tasks to start with
-     */
-    public TaskList(List<Task> todoList) {
-        this.todoList = todoList;
-    }
-
-    /**
-     * Returns the underlying list of tasks, mainly so it can be saved to disk.
+     * <p>The tasks are copied into a list of this object's own, so later changes to the
+     * list passed in do not reach into this one.
      *
-     * @return the backing list
+     * @param tasks the tasks to start with
      */
-    public List<Task> getTodoList() {
-        return todoList;
+    public TaskList(List<Task> tasks) {
+        todoList = new ArrayList<>(tasks);
     }
 
     /**

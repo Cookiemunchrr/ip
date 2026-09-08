@@ -29,7 +29,7 @@ public class StorageTest {
         TaskList original = new TaskList();
         original.addTask(new ToDo("read book"));
 
-        storage.writeFile(original.getTodoList());
+        storage.writeFile(original);
         TaskList loaded = storage.readFile();
 
         assertEquals(1, loaded.getSize());

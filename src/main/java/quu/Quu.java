@@ -74,7 +74,7 @@ public class Quu {
         try {
             String response = executeCommand(parts);
             try {
-                storage.writeFile(taskList.getTodoList());
+                storage.writeFile(taskList);
             } catch (IOException e) {
                 commandType = CommandType.ERROR;
                 return response + System.lineSeparator()
