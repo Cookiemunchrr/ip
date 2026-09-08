@@ -93,29 +93,25 @@ public class TaskList {
     /**
      * Removes and returns the task at a one-based position.
      *
-     * @param index one-based position of the task to remove
+     * @param taskNumber one-based position of the task to remove
      * @return the task that was removed
      * @throws TaskNotFoundException if no task sits at that position
      */
-    public Task removeTask(int index) throws TaskNotFoundException {
-        if (index < 1 || index > todoList.size()) {
-            throw new TaskNotFoundException(index);
-        }
-        return todoList.remove(index - 1);
+    public Task removeTask(int taskNumber) throws TaskNotFoundException {
+        int taskIndex = convertToZeroBasedIndex(taskNumber);
+        return todoList.remove(taskIndex);
     }
 
     /**
      * Marks the task at a one-based position as done.
      *
-     * @param index one-based position of the task to mark
+     * @param taskNumber one-based position of the task to mark
      * @return the task that was marked
      * @throws TaskNotFoundException if no task sits at that position
      */
-    public Task markTask(int index) throws TaskNotFoundException {
-        if (index < 1 || index > todoList.size()) {
-            throw new TaskNotFoundException(index);
-        }
-        Task task = todoList.get(index - 1);
+    public Task markTask(int taskNumber) throws TaskNotFoundException {
+        int taskIndex = convertToZeroBasedIndex(taskNumber);
+        Task task = todoList.get(taskIndex);
         task.mark();
         return task;
     }
@@ -123,16 +119,32 @@ public class TaskList {
     /**
      * Marks the task at a one-based position as not done.
      *
-     * @param index one-based position of the task to unmark
+     * @param taskNumber one-based position of the task to unmark
      * @return the task that was unmarked
      * @throws TaskNotFoundException if no task sits at that position
      */
-    public Task unmarkTask(int index) throws TaskNotFoundException {
-        if (index < 1 || index > todoList.size()) {
-            throw new TaskNotFoundException(index);
-        }
-        Task task = todoList.get(index - 1);
+    public Task unmarkTask(int taskNumber) throws TaskNotFoundException {
+        int taskIndex = convertToZeroBasedIndex(taskNumber);
+        Task task = todoList.get(taskIndex);
         task.unmark();
         return task;
+    }
+
+    /**
+     * Converts a task number as the user types it into a position in the backing list.
+     *
+     * <p>This is the only place the one-based numbering the user sees is translated into
+     * the zero-based indexing the list uses, so the two never drift apart.
+     *
+     * @param taskNumber one-based position of the task, as shown when listing tasks
+     * @return the matching zero-based index into the backing list
+     * @throws TaskNotFoundException if no task sits at that position
+     */
+    private int convertToZeroBasedIndex(int taskNumber) throws TaskNotFoundException {
+        if (taskNumber < 1 || taskNumber > todoList.size()) {
+            throw new TaskNotFoundException(taskNumber);
+        }
+
+        return taskNumber - 1;
     }
 }
