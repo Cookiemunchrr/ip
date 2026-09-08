@@ -36,8 +36,8 @@ public class ToDoTest {
     }
 
     @Test
-    public void fromFileString_noDescriptionField_throwsMissingArgument() {
+    public void fromFileString_fewerThanThreeFields_assertionFails() {
         String[] fields = {"T", "0"};
-        assertThrows(MissingArgumentException.class, () -> ToDo.fromFileString(fields));
+        assertThrows(AssertionError.class, () -> ToDo.fromFileString(fields));
     }
 }
