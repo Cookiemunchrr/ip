@@ -19,6 +19,8 @@ public enum CommandType {
     UNMARK,
     /** A task was removed. */
     DELETE,
+    /** A task's details were changed. */
+    UPDATE,
     /** The task list was shown. */
     LIST,
     /** A search was run over the task list. */

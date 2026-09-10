@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.format.DateTimeParseException;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -52,4 +53,30 @@ public class DeadlineTest {
         String[] fields = {"D", "0", "return book /by Sunday"};
         assertThrows(InvalidDateException.class, () -> Deadline.fromFileString(fields));
     }
+
+    @Test
+    public void withEdits_dueDateOnly_keepsTheDescription() throws MissingArgumentException, InvalidDateException {
+        Deadline editedDeadline = new Deadline("return book", "2026-06-06").withEdits(Map.of("by", "2026-07-07"));
+        assertEquals("[D][ ] return book (by: Jul 7 2026)", editedDeadline.toString());
+    }
+
+    @Test
+    public void withEdits_descriptionOnly_keepsTheDueDate() throws MissingArgumentException, InvalidDateException {
+        Deadline editedDeadline = new Deadline("return book", "2026-06-06")
+                .withEdits(Map.of(Task.KEY_DESCRIPTION, "return two books"));
+        assertEquals("[D][ ] return two books (by: Jun 6 2026)", editedDeadline.toString());
+    }
+
+    @Test
+    public void withEdits_flagADeadlineDoesNotHave_throwsMissingArgument() {
+        assertThrows(MissingArgumentException.class, () ->
+                new Deadline("return book", "2026-06-06").withEdits(Map.of("to", "2026-07-07")));
+    }
+
+    @Test
+    public void withEdits_dueDateThatIsNotADate_throwsInvalidDate() {
+        assertThrows(InvalidDateException.class, () ->
+                new Deadline("return book", "2026-06-06").withEdits(Map.of("by", "next tuesday")));
+    }
+
 }

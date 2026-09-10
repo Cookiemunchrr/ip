@@ -3,6 +3,8 @@ package quu.task;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
+import java.util.Set;
 
 import quu.exception.InvalidDateException;
 import quu.exception.InvalidDurationException;
@@ -13,6 +15,11 @@ import quu.exception.MissingArgumentException;
  */
 public class Event extends Task {
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM d yyyy");
+    private static final String FLAG_FROM = "from";
+    private static final String FLAG_TO = "to";
+    private static final Set<String> EDIT_FLAGS = Set.of(FLAG_FROM, FLAG_TO);
+    private static final String EDIT_USAGE =
+            "edit <task number> [<task>] [/from <yyyy-mm-dd>] [/to <yyyy-mm-dd>]";
 
     private final LocalDate eventStart;
     private final LocalDate eventEnd;
@@ -56,6 +63,35 @@ public class Event extends Task {
             return new Event(descriptionAndDates[0], dates[0], dates[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new MissingArgumentException(fields[0] + " <task> /from <yyyy-mm-dd> /to <yyyy-mm-dd>");
+        } catch (DateTimeParseException e) {
+            throw new InvalidDateException(e.getParsedString());
+        }
+    }
+
+    /**
+     * Returns a copy of this event with the requested edits applied.
+     *
+     * <p>Both dates go through the constructor together, so moving one end of the event
+     * still checks the pair: an edit that would leave the event ending before it starts is
+     * rejected, whichever end the user moved.
+     *
+     * @param edits the requested edits, keyed by {@link Task#KEY_DESCRIPTION},
+     *     {@code from} or {@code to}
+     * @return a new event holding the edited details
+     * @throws MissingArgumentException if an edit names an unsupported flag, or asks for a
+     *     blank description
+     * @throws InvalidDateException if an edited date cannot be read as a date
+     * @throws InvalidDurationException if the edited end date falls before the start date
+     */
+    @Override
+    public Event withEdits(Map<String, String> edits)
+            throws MissingArgumentException, InvalidDateException, InvalidDurationException {
+        requireSupportedEdits(edits, EDIT_FLAGS, EDIT_USAGE);
+        String editedDescription = resolveEditedDescription(edits, EDIT_USAGE);
+        String editedStart = edits.getOrDefault(FLAG_FROM, eventStart.toString());
+        String editedEnd = edits.getOrDefault(FLAG_TO, eventEnd.toString());
+        try {
+            return new Event(editedDescription, editedStart, editedEnd);
         } catch (DateTimeParseException e) {
             throw new InvalidDateException(e.getParsedString());
         }

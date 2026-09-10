@@ -6,9 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import quu.exception.MissingArgumentException;
+import quu.exception.QuuException;
 import quu.exception.TaskNotFoundException;
 
 /**
@@ -146,4 +149,39 @@ public class TaskListTest {
         found.addTask(new ToDo("extra"));
         assertEquals(2, taskList.getSize());
     }
+
+    @Test
+    public void editTask_descriptionChanged_keepsPositionAndSize() throws QuuException {
+        TaskList taskList = listOf("read book", "return book", "buy milk");
+        taskList.editTask(2, Map.of(Task.KEY_DESCRIPTION, "return two books"));
+        assertEquals(3, taskList.getSize());
+        assertEquals("[T][ ] read book", taskList.getTaskAt(0).toString());
+        assertEquals("[T][ ] return two books", taskList.getTaskAt(1).toString());
+        assertEquals("[T][ ] buy milk", taskList.getTaskAt(2).toString());
+    }
+
+    @Test
+    public void editTask_taskWasDone_staysDone() throws QuuException {
+        TaskList taskList = listOf("read book");
+        taskList.markTask(1);
+        Task editedTask = taskList.editTask(1, Map.of(Task.KEY_DESCRIPTION, "read two books"));
+        assertTrue(editedTask.isDone());
+        assertEquals("[T][X] read two books", taskList.getTaskAt(0).toString());
+    }
+
+    @Test
+    public void editTask_flagTheTaskDoesNotHave_leavesListUnchanged() {
+        TaskList taskList = listOf("read book");
+        assertThrows(MissingArgumentException.class, () -> taskList.editTask(1, Map.of("by", "2026-06-06")));
+        assertEquals(1, taskList.getSize());
+        assertEquals("[T][ ] read book", taskList.getTaskAt(0).toString());
+    }
+
+    @Test
+    public void editTask_indexPastTheEnd_throwsTaskNotFound() {
+        TaskList taskList = listOf("read book");
+        assertThrows(TaskNotFoundException.class, () ->
+                taskList.editTask(2, Map.of(Task.KEY_DESCRIPTION, "read two books")));
+    }
+
 }

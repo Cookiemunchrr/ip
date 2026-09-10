@@ -178,6 +178,7 @@ public class Quu {
             case "deadline" -> handleAdd(parser.parseDeadline(parts));
             case "event" -> handleAdd(parser.parseEvent(parts));
             case "delete" -> handleDelete(parts);
+            case "edit" -> handleEdit(parts);
             case "find" -> handleFind(parts);
             default -> throw new UnknownCommandException(parts[0]);
         };
@@ -246,6 +247,25 @@ public class Quu {
         commandType = CommandType.DELETE;
         Task task = taskList.removeTask(parser.parseTaskNumber(parts));
         return ui.getRemoved(task, taskList.getSize());
+    }
+
+    /**
+     * Changes the details of the task the user named, leaving its position alone.
+     *
+     * <p>The arguments carry two things, so the task number comes off first and whatever
+     * follows is read as edits. Which details may be edited depends on the kind of task, a
+     * question this method never has to ask: the task itself rejects an edit it cannot use.
+     *
+     * @param parts the user input split into command and arguments
+     * @return the confirmation showing the task as it now stands
+     * @throws QuuException if the task number or the edits are missing or unusable
+     */
+    private String handleEdit(String[] parts) throws QuuException {
+        commandType = CommandType.UPDATE;
+        String[] numberAndEdits = parser.parseEditArguments(parts);
+        int taskNumber = parser.parseTaskNumber(numberAndEdits[0]);
+        Task editedTask = taskList.editTask(taskNumber, parser.parseEdits(numberAndEdits[1]));
+        return ui.getEdited(editedTask);
     }
 
     /**

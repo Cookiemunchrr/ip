@@ -2,14 +2,16 @@ package quu.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import quu.exception.QuuException;
 import quu.exception.TaskNotFoundException;
 
 /**
  * The collection of tasks the user is working with.
  *
- * <p>Indices accepted by {@link #removeTask(int)}, {@link #markTask(int)} and
- * {@link #unmarkTask(int)} are <em>one-based</em>, matching the numbering the user
+ * <p>Indices accepted by {@link #removeTask(int)}, {@link #markTask(int)},
+ * {@link #unmarkTask(int)} and {@link #editTask(int, Map)} are <em>one-based</em>, matching the numbering the user
  * sees when listing tasks. {@link #getTaskAt(int)} is zero-based because it is used
  * for iteration rather than driven by user input.
  */
@@ -127,6 +129,37 @@ public class TaskList {
         task.unmark();
         assert !task.isDone() : "unmarking a task must leave it not done before it is reported to the user";
         return task;
+    }
+
+    /**
+     * Applies edits to the task at a one-based position, leaving it where it is.
+     *
+     * <p>The task rebuilds itself through {@link Task#withEdits(Map)}, so the edited task is a
+     * new object rather than the old one altered. Putting it back in the same slot keeps the
+     * numbering the user sees unchanged, and because the replacement is built before anything
+     * is overwritten, an edit that turns out to be invalid leaves the list exactly as it was.
+     *
+     * <p>A rebuilt task starts out not done, so a task that was already done is marked again
+     * here. Doing it in this one place keeps every subclass of {@link Task} out of it.
+     *
+     * @param taskNumber one-based position of the task to edit
+     * @param edits the requested edits, as returned by {@code Parser.parseEdits}
+     * @return the edited task now held at that position
+     * @throws QuuException if no task sits at that position, or the edits name a detail the
+     *     task does not have
+     */
+    public Task editTask(int taskNumber, Map<String, String> edits) throws QuuException {
+        int taskIndex = convertToZeroBasedIndex(taskNumber);
+        Task oldTask = todoList.get(taskIndex);
+
+        Task editedTask = oldTask.withEdits(edits);
+        if (oldTask.isDone()) {
+            editedTask.mark();
+        }
+
+        todoList.set(taskIndex, editedTask);
+        assert editedTask.isDone() == oldTask.isDone() : "editing a task must not change whether it is done";
+        return editedTask;
     }
 
     /**
