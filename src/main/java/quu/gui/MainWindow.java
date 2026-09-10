@@ -6,6 +6,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import quu.CommandType;
 import quu.Quu;
 
 /**
@@ -38,7 +39,7 @@ public class MainWindow extends AnchorPane {
      */
     public void setQuu(Quu quu) {
         this.quu = quu;
-        String commandType = quu.getCommandType();
+        CommandType commandType = quu.getCommandType();
         dialogContainer.getChildren().add(DialogBox.getQuuDialog(quu.getGreeting(), quuImage, commandType));
         if (!quu.getLoadMessage().isEmpty()) {
             dialogContainer.getChildren().add(
@@ -54,7 +55,7 @@ public class MainWindow extends AnchorPane {
         assert quu != null : "Main.start() calls setQuu before the window is shown";
         String input = userInput.getText();
         String response = quu.getResponse(input);
-        String commandType = quu.getCommandType();
+        CommandType commandType = quu.getCommandType();
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
                 DialogBox.getQuuDialog(response, quuImage, commandType));

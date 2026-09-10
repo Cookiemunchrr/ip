@@ -22,22 +22,16 @@ public class TaskList {
     }
 
     /**
-     * Creates a task list backed by an existing list of tasks.
+     * Creates a task list holding the given tasks.
      *
-     * @param todoList the tasks to start with
-     */
-    public TaskList(List<Task> todoList) {
-        assert todoList != null : "a task list must be backed by a real list, not null";
-        this.todoList = todoList;
-    }
-
-    /**
-     * Returns the underlying list of tasks, mainly so it can be saved to disk.
+     * <p>The tasks are copied into a list of this object's own, so later changes to the
+     * list passed in do not reach into this one.
      *
-     * @return the backing list
+     * @param tasks the tasks to start with
      */
-    public List<Task> getTodoList() {
-        return todoList;
+    public TaskList(List<Task> tasks) {
+        assert tasks != null : "a task list must be built from a real list, not null";
+        todoList = new ArrayList<>(tasks);
     }
 
     /**
@@ -96,29 +90,25 @@ public class TaskList {
     /**
      * Removes and returns the task at a one-based position.
      *
-     * @param index one-based position of the task to remove
+     * @param taskNumber one-based position of the task to remove
      * @return the task that was removed
      * @throws TaskNotFoundException if no task sits at that position
      */
-    public Task removeTask(int index) throws TaskNotFoundException {
-        if (index < 1 || index > todoList.size()) {
-            throw new TaskNotFoundException(index);
-        }
-        return todoList.remove(index - 1);
+    public Task removeTask(int taskNumber) throws TaskNotFoundException {
+        int taskIndex = convertToZeroBasedIndex(taskNumber);
+        return todoList.remove(taskIndex);
     }
 
     /**
      * Marks the task at a one-based position as done.
      *
-     * @param index one-based position of the task to mark
+     * @param taskNumber one-based position of the task to mark
      * @return the task that was marked
      * @throws TaskNotFoundException if no task sits at that position
      */
-    public Task markTask(int index) throws TaskNotFoundException {
-        if (index < 1 || index > todoList.size()) {
-            throw new TaskNotFoundException(index);
-        }
-        Task task = todoList.get(index - 1);
+    public Task markTask(int taskNumber) throws TaskNotFoundException {
+        int taskIndex = convertToZeroBasedIndex(taskNumber);
+        Task task = todoList.get(taskIndex);
         task.mark();
         assert task.isDone() : "marking a task must leave it done before it is reported to the user";
         return task;
@@ -127,17 +117,33 @@ public class TaskList {
     /**
      * Marks the task at a one-based position as not done.
      *
-     * @param index one-based position of the task to unmark
+     * @param taskNumber one-based position of the task to unmark
      * @return the task that was unmarked
      * @throws TaskNotFoundException if no task sits at that position
      */
-    public Task unmarkTask(int index) throws TaskNotFoundException {
-        if (index < 1 || index > todoList.size()) {
-            throw new TaskNotFoundException(index);
-        }
-        Task task = todoList.get(index - 1);
+    public Task unmarkTask(int taskNumber) throws TaskNotFoundException {
+        int taskIndex = convertToZeroBasedIndex(taskNumber);
+        Task task = todoList.get(taskIndex);
         task.unmark();
         assert !task.isDone() : "unmarking a task must leave it not done before it is reported to the user";
         return task;
+    }
+
+    /**
+     * Converts a task number as the user types it into a position in the backing list.
+     *
+     * <p>This is the only place the one-based numbering the user sees is translated into
+     * the zero-based indexing the list uses, so the two never drift apart.
+     *
+     * @param taskNumber one-based position of the task, as shown when listing tasks
+     * @return the matching zero-based index into the backing list
+     * @throws TaskNotFoundException if no task sits at that position
+     */
+    private int convertToZeroBasedIndex(int taskNumber) throws TaskNotFoundException {
+        if (taskNumber < 1 || taskNumber > todoList.size()) {
+            throw new TaskNotFoundException(taskNumber);
+        }
+
+        return taskNumber - 1;
     }
 }

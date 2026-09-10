@@ -26,21 +26,12 @@ public class Quu {
     private static final String TASK_FILE = "./data/Quu.txt";
     private static final String EXIT_COMMAND = "bye";
 
-    private static final String COMMAND_NONE = "none";
-    private static final String COMMAND_ADD = "add";
-    private static final String COMMAND_MARK = "mark";
-    private static final String COMMAND_UNMARK = "unmark";
-    private static final String COMMAND_DELETE = "delete";
-    private static final String COMMAND_LIST = "list";
-    private static final String COMMAND_FIND = "find";
-    private static final String COMMAND_ERROR = "error";
-
     private final Ui ui = new Ui();
     private final Parser parser = new Parser();
     private final Storage storage = new Storage(TASK_FILE);
     private final TaskList taskList;
     private final String loadMessage;
-    private String commandType = COMMAND_NONE;
+    private CommandType commandType = CommandType.NONE;
 
     /**
      * Creates a chatbot whose task list is loaded from disk.
@@ -84,15 +75,15 @@ public class Quu {
         try {
             String response = executeCommand(parts);
             try {
-                storage.writeFile(taskList.getTodoList());
+                storage.writeFile(taskList);
             } catch (IOException e) {
-                commandType = COMMAND_ERROR;
+                commandType = CommandType.ERROR;
                 return response + System.lineSeparator()
                         + ui.getSaveError(String.format("Unable to write to file, %s", e.getMessage()));
             }
             return response;
         } catch (QuuException e) {
-            commandType = COMMAND_ERROR;
+            commandType = CommandType.ERROR;
             return ui.getException(e);
         }
     }
@@ -100,9 +91,9 @@ public class Quu {
     /**
      * Returns the category of the command handled by the last call to {@link #getResponse(String)}.
      *
-     * @return the command category, or {@code "none"} before a command is handled
+     * @return the command category, or {@link CommandType#NONE} before a command is handled
      */
-    public String getCommandType() {
+    public CommandType getCommandType() {
         return commandType;
     }
 
@@ -170,53 +161,102 @@ public class Quu {
     /**
      * Carries out a single command and returns its reply.
      *
+     * <p>This method decides only <em>which</em> command was typed. What each command does
+     * lives in its own handler below, so that this switch stays a readable summary of the
+     * commands Quu understands.
+     *
      * @param parts the user input split into command and arguments
      * @return the text describing what the command did
      * @throws QuuException if the command is unknown or its arguments are unusable
      */
     private String executeCommand(String[] parts) throws QuuException {
-        switch (parts[0]) {
-            case "list":
-                commandType = COMMAND_LIST;
-                return ui.getList(taskList);
-            case "mark": {
-                commandType = COMMAND_MARK;
-                Task task = taskList.markTask(parser.parseTaskNumber(parts));
-                return ui.getMarked(task);
-            }
-            case "unmark": {
-                commandType = COMMAND_UNMARK;
-                Task task = taskList.unmarkTask(parser.parseTaskNumber(parts));
-                return ui.getUnmarked(task);
-            }
-            case "todo": {
-                commandType = COMMAND_ADD;
-                Task task = parser.parseToDo(parts);
-                taskList.addTask(task);
-                return ui.getAdded(task, taskList.getSize());
-            }
-            case "deadline": {
-                commandType = COMMAND_ADD;
-                Task task = parser.parseDeadline(parts);
-                taskList.addTask(task);
-                return ui.getAdded(task, taskList.getSize());
-            }
-            case "event": {
-                commandType = COMMAND_ADD;
-                Task task = parser.parseEvent(parts);
-                taskList.addTask(task);
-                return ui.getAdded(task, taskList.getSize());
-            }
-            case "delete": {
-                commandType = COMMAND_DELETE;
-                Task task = taskList.removeTask(parser.parseTaskNumber(parts));
-                return ui.getRemoved(task, taskList.getSize());
-            }
-            case "find":
-                commandType = COMMAND_FIND;
-                return ui.getFound(taskList.buildFoundList(parser.parseKeyword(parts)));
-            default:
-                throw new UnknownCommandException(parts[0]);
-        }
+        return switch (parts[0]) {
+            case "list" -> handleList();
+            case "mark" -> handleMark(parts);
+            case "unmark" -> handleUnmark(parts);
+            case "todo" -> handleAdd(parser.parseToDo(parts));
+            case "deadline" -> handleAdd(parser.parseDeadline(parts));
+            case "event" -> handleAdd(parser.parseEvent(parts));
+            case "delete" -> handleDelete(parts);
+            case "find" -> handleFind(parts);
+            default -> throw new UnknownCommandException(parts[0]);
+        };
+    }
+
+    /**
+     * Shows every task currently in the list.
+     *
+     * @return the numbered task list
+     */
+    private String handleList() {
+        commandType = CommandType.LIST;
+        return ui.getList(taskList);
+    }
+
+    /**
+     * Marks the task the user named as done.
+     *
+     * @param parts the user input split into command and arguments
+     * @return the confirmation that the task was marked
+     * @throws QuuException if the task number is missing, not a number, or out of range
+     */
+    private String handleMark(String[] parts) throws QuuException {
+        commandType = CommandType.MARK;
+        Task task = taskList.markTask(parser.parseTaskNumber(parts));
+        return ui.getMarked(task);
+    }
+
+    /**
+     * Marks the task the user named as not done.
+     *
+     * @param parts the user input split into command and arguments
+     * @return the confirmation that the task was unmarked
+     * @throws QuuException if the task number is missing, not a number, or out of range
+     */
+    private String handleUnmark(String[] parts) throws QuuException {
+        commandType = CommandType.UNMARK;
+        Task task = taskList.unmarkTask(parser.parseTaskNumber(parts));
+        return ui.getUnmarked(task);
+    }
+
+    /**
+     * Adds an already-parsed task to the list and reports it.
+     *
+     * <p>Shared by the todo, deadline and event commands, which differ only in how the
+     * task is built and not in what happens to it once it exists. The caller does the
+     * parsing, so this method never has to ask which kind of task it was given.
+     *
+     * @param task the task to add
+     * @return the confirmation that the task was added
+     */
+    private String handleAdd(Task task) {
+        commandType = CommandType.ADD;
+        taskList.addTask(task);
+        return ui.getAdded(task, taskList.getSize());
+    }
+
+    /**
+     * Removes the task the user named.
+     *
+     * @param parts the user input split into command and arguments
+     * @return the confirmation that the task was removed
+     * @throws QuuException if the task number is missing, not a number, or out of range
+     */
+    private String handleDelete(String[] parts) throws QuuException {
+        commandType = CommandType.DELETE;
+        Task task = taskList.removeTask(parser.parseTaskNumber(parts));
+        return ui.getRemoved(task, taskList.getSize());
+    }
+
+    /**
+     * Lists the tasks whose description contains the keyword the user gave.
+     *
+     * @param parts the user input split into command and arguments
+     * @return the numbered list of matching tasks
+     * @throws QuuException if the keyword is missing or blank
+     */
+    private String handleFind(String[] parts) throws QuuException {
+        commandType = CommandType.FIND;
+        return ui.getFound(taskList.buildFoundList(parser.parseKeyword(parts)));
     }
 }

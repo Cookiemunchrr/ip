@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import quu.CommandType;
 
 /**
  * Represents a message containing the speaker's picture and text.
@@ -56,7 +57,7 @@ public class DialogBox extends HBox {
      * @param commandType the category reported by {@code Quu.getCommandType()}
      * @return the dialog box
      */
-    public static DialogBox getQuuDialog(String text, Image image, String commandType) {
+    public static DialogBox getQuuDialog(String text, Image image, CommandType commandType) {
         DialogBox dialogBox = new DialogBox(text, image);
         dialogBox.flip();
         dialogBox.changeDialogStyle(commandType);
@@ -75,33 +76,24 @@ public class DialogBox extends HBox {
     /**
      * Adds the style class for the given command category.
      *
+     * <p>The switch is an expression over every constant of {@link CommandType}, so adding
+     * a category without giving it a style here will not compile.
+     *
      * @param commandType the category reported by {@code Quu.getCommandType()}
      */
-    private void changeDialogStyle(String commandType) {
-        switch (commandType) {
-            case "add":
-                dialog.getStyleClass().add("add-label");
-                break;
-            case "mark":
-                dialog.getStyleClass().add("marked-label");
-                break;
-            case "unmark":
-                dialog.getStyleClass().add("unmarked-label");
-                break;
-            case "delete":
-                dialog.getStyleClass().add("delete-label");
-                break;
-            case "list":
-                dialog.getStyleClass().add("list-label");
-                break;
-            case "find":
-                dialog.getStyleClass().add("find-label");
-                break;
-            case "error":
-                dialog.getStyleClass().add("error-label");
-                break;
-            default:
-                break;
+    private void changeDialogStyle(CommandType commandType) {
+        String styleClass = switch (commandType) {
+            case ADD -> "add-label";
+            case MARK -> "marked-label";
+            case UNMARK -> "unmarked-label";
+            case DELETE -> "delete-label";
+            case LIST -> "list-label";
+            case FIND -> "find-label";
+            case ERROR -> "error-label";
+            case NONE -> null; // the opening greeting keeps the default styling
+        };
+        if (styleClass != null) {
+            dialog.getStyleClass().add(styleClass);
         }
     }
 }
