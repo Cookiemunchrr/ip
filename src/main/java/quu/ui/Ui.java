@@ -61,6 +61,16 @@ public class Ui {
     }
 
     /**
+     * Returns the confirmation that a task's details were changed.
+     *
+     * @param task the task as it now stands, after the edits
+     * @return the confirmation message
+     */
+    public String getEdited(Task task) {
+        return String.format("Got it. I've updated this task:%n %s", task);
+    }
+
+    /**
      * Returns the confirmation that a task was marked as done.
      *
      * @param task the task that was marked

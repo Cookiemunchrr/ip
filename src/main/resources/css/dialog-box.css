@@ -31,6 +31,10 @@
     -fx-background-color: lightpink;
 }
 
+.update-label {
+    -fx-background-color: lightsalmon;
+}
+
 .list-label {
     -fx-background-color: lightskyblue;
 }

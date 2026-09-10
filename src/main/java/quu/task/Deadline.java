@@ -3,6 +3,8 @@ package quu.task;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
+import java.util.Set;
 
 import quu.exception.InvalidDateException;
 import quu.exception.MissingArgumentException;
@@ -12,6 +14,9 @@ import quu.exception.MissingArgumentException;
  */
 public class Deadline extends Task {
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM d yyyy");
+    private static final String FLAG_BY = "by";
+    private static final Set<String> EDIT_FLAGS = Set.of(FLAG_BY);
+    private static final String EDIT_USAGE = "edit <task number> [<task>] [/by <yyyy-mm-dd>]";
 
     private final LocalDate deadline;
 
@@ -46,6 +51,31 @@ public class Deadline extends Task {
             return new Deadline(parts[0], parts[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new MissingArgumentException(fields[0] + " <task> /by <yyyy-mm-dd>");
+        } catch (DateTimeParseException e) {
+            throw new InvalidDateException(e.getParsedString());
+        }
+    }
+
+    /**
+     * Returns a copy of this deadline with the requested edits applied.
+     *
+     * <p>A due date the edits leave alone is carried over in ISO form, which is the form
+     * the constructor reads, so the unedited value makes the same round trip as a value the
+     * user typed.
+     *
+     * @param edits the requested edits, keyed by {@link Task#KEY_DESCRIPTION} or {@code by}
+     * @return a new deadline holding the edited details
+     * @throws MissingArgumentException if an edit names an unsupported flag, or asks for a
+     *     blank description
+     * @throws InvalidDateException if the edited due date cannot be read as a date
+     */
+    @Override
+    public Deadline withEdits(Map<String, String> edits) throws MissingArgumentException, InvalidDateException {
+        requireSupportedEdits(edits, EDIT_FLAGS, EDIT_USAGE);
+        String editedDescription = resolveEditedDescription(edits, EDIT_USAGE);
+        String editedDeadline = edits.getOrDefault(FLAG_BY, deadline.toString());
+        try {
+            return new Deadline(editedDescription, editedDeadline);
         } catch (DateTimeParseException e) {
             throw new InvalidDateException(e.getParsedString());
         }

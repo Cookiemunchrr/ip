@@ -3,6 +3,8 @@ package quu.task;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 import quu.exception.MissingArgumentException;
@@ -40,4 +42,23 @@ public class ToDoTest {
         String[] fields = {"T", "0"};
         assertThrows(AssertionError.class, () -> ToDo.fromFileString(fields));
     }
+
+    @Test
+    public void withEdits_newDescription_returnsEditedToDo() throws MissingArgumentException {
+        ToDo editedToDo = new ToDo("borrow book").withEdits(Map.of(Task.KEY_DESCRIPTION, "borrow two books"));
+        assertEquals("[T][ ] borrow two books", editedToDo.toString());
+    }
+
+    @Test
+    public void withEdits_flagAToDoDoesNotHave_throwsMissingArgument() {
+        assertThrows(MissingArgumentException.class, () ->
+                new ToDo("borrow book").withEdits(Map.of("by", "2026-06-06")));
+    }
+
+    @Test
+    public void withEdits_blankDescription_throwsMissingArgument() {
+        assertThrows(MissingArgumentException.class, () ->
+                new ToDo("borrow book").withEdits(Map.of(Task.KEY_DESCRIPTION, "   ")));
+    }
+
 }

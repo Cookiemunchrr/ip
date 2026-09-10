@@ -3,6 +3,8 @@ package quu.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 import quu.exception.InvalidDateException;
@@ -105,4 +107,67 @@ public class ParserTest {
         assertEquals("Invalid format. Please follow this format: mark <task number>",
                 thrown.getMessage());
     }
+
+    @Test
+    public void parseEdits_descriptionAndFlags_returnsEveryEdit() throws MissingArgumentException {
+        Map<String, String> edits = parser.parseEdits("read book /from 2026-01-01 /to 2026-01-05");
+        assertEquals(3, edits.size());
+        assertEquals("read book", edits.get(Task.KEY_DESCRIPTION));
+        assertEquals("2026-01-01", edits.get("from"));
+        assertEquals("2026-01-05", edits.get("to"));
+    }
+
+    @Test
+    public void parseEdits_flagOnly_returnsFlagWithoutDescription() throws MissingArgumentException {
+        Map<String, String> edits = parser.parseEdits("/to 2026-01-05");
+        assertEquals(1, edits.size());
+        assertEquals("2026-01-05", edits.get("to"));
+    }
+
+    @Test
+    public void parseEdits_flagsInReverseOrder_returnsSameEdits() throws MissingArgumentException {
+        assertEquals(parser.parseEdits("/from 2026-01-01 /to 2026-01-05"),
+                parser.parseEdits("/to 2026-01-05 /from 2026-01-01"));
+    }
+
+    @Test
+    public void parseEdits_descriptionOnly_returnsDescriptionAlone() throws MissingArgumentException {
+        Map<String, String> edits = parser.parseEdits("read a better book");
+        assertEquals(1, edits.size());
+        assertEquals("read a better book", edits.get(Task.KEY_DESCRIPTION));
+    }
+
+    @Test
+    public void parseEdits_unknownFlag_isLeftForTheTaskToReject() throws MissingArgumentException {
+        assertEquals("2026-01-05", parser.parseEdits("/nonsense 2026-01-05").get("nonsense"));
+    }
+
+    @Test
+    public void parseEdits_flagWithoutValue_throwsMissingArgument() {
+        assertThrows(MissingArgumentException.class, () -> parser.parseEdits("/by"));
+    }
+
+    @Test
+    public void parseEdits_nothingToChange_throwsMissingArgument() {
+        assertThrows(MissingArgumentException.class, () -> parser.parseEdits("   "));
+    }
+
+    @Test
+    public void parseEditArguments_numberAndEdits_separatesThem() throws MissingArgumentException {
+        String[] numberAndEdits = parser.parseEditArguments(new String[]{"edit", "3 /by 2026-06-06"});
+        assertEquals("3", numberAndEdits[0]);
+        assertEquals("/by 2026-06-06", numberAndEdits[1]);
+    }
+
+    @Test
+    public void parseEditArguments_numberWithoutEdits_throwsMissingArgument() {
+        assertThrows(MissingArgumentException.class, () ->
+                parser.parseEditArguments(new String[]{"edit", "3"}));
+    }
+
+    @Test
+    public void parseTaskNumber_numberOnItsOwn_returnsIndex() throws InvalidIndexException {
+        assertEquals(3, parser.parseTaskNumber("3"));
+    }
+
 }

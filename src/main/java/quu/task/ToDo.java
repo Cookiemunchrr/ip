@@ -1,11 +1,16 @@
 package quu.task;
 
+import java.util.Map;
+import java.util.Set;
+
 import quu.exception.MissingArgumentException;
 
 /**
  * A task with only a description and no associated date.
  */
 public class ToDo extends Task {
+    private static final Set<String> EDIT_FLAGS = Set.of();
+    private static final String EDIT_USAGE = "edit <task number> <task>";
 
     /**
      * Creates a to-do.
@@ -36,6 +41,22 @@ public class ToDo extends Task {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new MissingArgumentException(fields[0] + " <task>");
         }
+    }
+
+    /**
+     * Returns a copy of this to-do with the requested edits applied.
+     *
+     * <p>A to-do has no flags of its own, so the only detail an edit can change is the
+     * description.
+     *
+     * @param edits the requested edits, keyed by {@link Task#KEY_DESCRIPTION}
+     * @return a new to-do holding the edited description
+     * @throws MissingArgumentException if an edit names a flag, or asks for a blank description
+     */
+    @Override
+    public ToDo withEdits(Map<String, String> edits) throws MissingArgumentException {
+        requireSupportedEdits(edits, EDIT_FLAGS, EDIT_USAGE);
+        return new ToDo(resolveEditedDescription(edits, EDIT_USAGE));
     }
 
     @Override
