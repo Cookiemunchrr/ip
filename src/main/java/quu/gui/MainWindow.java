@@ -52,6 +52,7 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     private void handleUserInput() {
+        assert quu != null : "Main.start() calls setQuu before the window is shown";
         String input = userInput.getText();
         String response = quu.getResponse(input);
         CommandType commandType = quu.getCommandType();

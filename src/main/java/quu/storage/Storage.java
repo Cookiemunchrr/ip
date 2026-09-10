@@ -112,6 +112,7 @@ public class Storage {
     private void applyDoneFlag(Task task, String doneFlag, String line) throws InvalidFileContents {
         if (doneFlag.equals("1")) {
             task.mark();
+            assert task.isDone() : "after marking the task, it should be done";
         } else if (!doneFlag.equals("0")) {
             throw corruptedLine(line);
         }

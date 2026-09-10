@@ -57,6 +57,8 @@ test {
 
 application {
     mainClass = 'quu.gui.Launcher'
+    // Assertions are disabled by default outside the test task; keep them on when running the app.
+    applicationDefaultJvmArgs = ['-ea']
 }
 
 jar {
@@ -76,4 +78,5 @@ tasks.register('runCli', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'quu.Quu'
     standardInput = System.in
+    enableAssertions = true
 }

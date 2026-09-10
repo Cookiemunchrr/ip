@@ -30,6 +30,7 @@ public class TaskList {
      * @param tasks the tasks to start with
      */
     public TaskList(List<Task> tasks) {
+        assert tasks != null : "a task list must be built from a real list, not null";
         todoList = new ArrayList<>(tasks);
     }
 
@@ -40,6 +41,8 @@ public class TaskList {
      * @return the task at that position
      */
     public Task getTaskAt(int index) {
+        assert index >= 0 : "a caller iterating over the list never passes a negative index";
+        assert index < todoList.size() : "a caller iterating over the list stays below getSize()";
         return todoList.get(index);
     }
 
@@ -107,6 +110,7 @@ public class TaskList {
         int taskIndex = convertToZeroBasedIndex(taskNumber);
         Task task = todoList.get(taskIndex);
         task.mark();
+        assert task.isDone() : "marking a task must leave it done before it is reported to the user";
         return task;
     }
 
@@ -121,6 +125,7 @@ public class TaskList {
         int taskIndex = convertToZeroBasedIndex(taskNumber);
         Task task = todoList.get(taskIndex);
         task.unmark();
+        assert !task.isDone() : "unmarking a task must leave it not done before it is reported to the user";
         return task;
     }
 

@@ -71,6 +71,7 @@ public class Quu {
         }
 
         String[] parts = input.split(" ", 2);
+        assert parts.length > 0 : "splitting with a positive limit always yields at least the command word";
         try {
             String response = executeCommand(parts);
             try {
