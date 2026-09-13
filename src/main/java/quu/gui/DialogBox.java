@@ -13,12 +13,20 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Circle;
 import quu.CommandType;
 
 /**
  * Represents a message containing the speaker's picture and text.
  */
 public class DialogBox extends HBox {
+    /**
+     * Fraction of the row's width a bubble may occupy. Capping the bubble relative to the
+     * row, rather than at a fixed number of pixels, keeps the text re-wrapping as the
+     * window is resized.
+     */
+    private static final double BUBBLE_WIDTH_RATIO = 0.72;
+
     @FXML
     private Label dialog;
     @FXML
@@ -34,8 +42,13 @@ public class DialogBox extends HBox {
             throw new IllegalStateException("Unable to load the dialog box layout", e);
         }
 
+        assert dialog != null && displayPicture != null
+                : "DialogBox.fxml declares an fx:id for both of its children";
+
         dialog.setText(text);
+        dialog.maxWidthProperty().bind(widthProperty().multiply(BUBBLE_WIDTH_RATIO));
         displayPicture.setImage(image);
+        clipToCircle(displayPicture);
     }
 
     /**
@@ -62,6 +75,18 @@ public class DialogBox extends HBox {
         dialogBox.flip();
         dialogBox.changeDialogStyle(commandType);
         return dialogBox;
+    }
+
+    /**
+     * Clips an avatar to a circle, so that the square source images read as profile
+     * pictures rather than as pasted-in squares.
+     *
+     * @param imageView the avatar to clip
+     */
+    private static void clipToCircle(ImageView imageView) {
+        double radius = imageView.getFitWidth() / 2;
+        assert radius > 0 : "DialogBox.fxml gives the avatar a fixed fitWidth";
+        imageView.setClip(new Circle(radius, radius, radius));
     }
 
     /** Flips the dialog box so that the picture is on the left. */
