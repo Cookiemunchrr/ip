@@ -174,7 +174,7 @@ public class TaskList {
      */
     private int convertToZeroBasedIndex(int taskNumber) throws TaskNotFoundException {
         if (taskNumber < 1 || taskNumber > todoList.size()) {
-            throw new TaskNotFoundException(taskNumber);
+            throw new TaskNotFoundException(taskNumber, todoList.size());
         }
 
         return taskNumber - 1;

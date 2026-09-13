@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import quu.exception.MissingArgumentException;
+import quu.exception.QuuException;
 
 /**
  * A task with only a description and no associated date.
@@ -51,10 +52,10 @@ public class ToDo extends Task {
      *
      * @param edits the requested edits, keyed by {@link Task#KEY_DESCRIPTION}
      * @return a new to-do holding the edited description
-     * @throws MissingArgumentException if an edit names a flag, or asks for a blank description
+     * @throws QuuException if an edit names a flag, or asks for a blank description
      */
     @Override
-    public ToDo withEdits(Map<String, String> edits) throws MissingArgumentException {
+    public ToDo withEdits(Map<String, String> edits) throws QuuException {
         requireSupportedEdits(edits, EDIT_FLAGS, EDIT_USAGE);
         return new ToDo(resolveEditedDescription(edits, EDIT_USAGE));
     }

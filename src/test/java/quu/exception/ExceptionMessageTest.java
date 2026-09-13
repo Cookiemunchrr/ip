@@ -33,9 +33,33 @@ public class ExceptionMessageTest {
     }
 
     @Test
-    public void taskNotFound_messageNamesTheIndexAndSuggestsList() {
-        assertEquals("There's no task at 5 use list to check available tasks.",
-                new TaskNotFoundException(5).getMessage());
+    public void taskNotFound_messageNamesTheIndexAndTheRangeThatWouldWork() {
+        assertEquals("There's no task 5. Your list has 2 tasks, numbered 1 to 2.",
+                new TaskNotFoundException(5, 2).getMessage());
+    }
+
+    @Test
+    public void taskNotFound_singleTask_countReadsAsSingular() {
+        assertEquals("There's no task 5. Your list has 1 task, numbered 1 to 1.",
+                new TaskNotFoundException(5, 1).getMessage());
+    }
+
+    @Test
+    public void taskNotFound_emptyList_saysToAddATaskFirst() {
+        assertEquals("There's no task 5. Your list is empty, so add a task first.",
+                new TaskNotFoundException(5, 0).getMessage());
+    }
+
+    @Test
+    public void unknownCommand_messageListsWhatIsUnderstood() {
+        assertEquals(String.format("I don't know what \"blah\" does.%nI understand: todo, list"),
+                new UnknownCommandException("blah", "todo, list").getMessage());
+    }
+
+    @Test
+    public void unexpectedArgument_messageNamesTheBareCommand() {
+        assertEquals("bye takes no arguments. Just type: bye",
+                new UnexpectedArgumentException("bye").getMessage());
     }
 
     @Test
@@ -50,8 +74,10 @@ public class ExceptionMessageTest {
         assertInstanceOf(QuuException.class, new InvalidDateException("Sunday"));
         assertInstanceOf(QuuException.class, new InvalidIndexException("abc"));
         assertInstanceOf(QuuException.class, new MissingArgumentException("todo <task>"));
-        assertInstanceOf(QuuException.class, new TaskNotFoundException(5));
-        assertInstanceOf(QuuException.class, new UnknownCommandException("blah"));
+        assertInstanceOf(QuuException.class, new TaskNotFoundException(5, 2));
+        assertInstanceOf(QuuException.class, new UnknownCommandException("blah", "todo, list"));
         assertInstanceOf(QuuException.class, new InvalidFileContents("corrupted line"));
+        assertInstanceOf(QuuException.class, new UnexpectedArgumentException("bye"));
+        assertInstanceOf(QuuException.class, new SaveFileException("is a folder"));
     }
 }

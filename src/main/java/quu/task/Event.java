@@ -9,6 +9,7 @@ import java.util.Set;
 import quu.exception.InvalidDateException;
 import quu.exception.InvalidDurationException;
 import quu.exception.MissingArgumentException;
+import quu.exception.QuuException;
 
 /**
  * A task that spans a period between two dates.
@@ -78,14 +79,11 @@ public class Event extends Task {
      * @param edits the requested edits, keyed by {@link Task#KEY_DESCRIPTION},
      *     {@code from} or {@code to}
      * @return a new event holding the edited details
-     * @throws MissingArgumentException if an edit names an unsupported flag, or asks for a
-     *     blank description
-     * @throws InvalidDateException if an edited date cannot be read as a date
-     * @throws InvalidDurationException if the edited end date falls before the start date
+     * @throws QuuException if an edit names an unsupported flag, asks for a blank
+     *     description, gives a date that cannot be read, or ends the event before it starts
      */
     @Override
-    public Event withEdits(Map<String, String> edits)
-            throws MissingArgumentException, InvalidDateException, InvalidDurationException {
+    public Event withEdits(Map<String, String> edits) throws QuuException {
         requireSupportedEdits(edits, EDIT_FLAGS, EDIT_USAGE);
         String editedDescription = resolveEditedDescription(edits, EDIT_USAGE);
         String editedStart = edits.getOrDefault(FLAG_FROM, eventStart.toString());

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import quu.exception.InvalidDateException;
 import quu.exception.MissingArgumentException;
+import quu.exception.QuuException;
 
 /**
  * A task that must be completed by a given date.
@@ -65,12 +66,11 @@ public class Deadline extends Task {
      *
      * @param edits the requested edits, keyed by {@link Task#KEY_DESCRIPTION} or {@code by}
      * @return a new deadline holding the edited details
-     * @throws MissingArgumentException if an edit names an unsupported flag, or asks for a
-     *     blank description
-     * @throws InvalidDateException if the edited due date cannot be read as a date
+     * @throws QuuException if an edit names an unsupported flag, asks for a blank
+     *     description, or gives a due date that cannot be read
      */
     @Override
-    public Deadline withEdits(Map<String, String> edits) throws MissingArgumentException, InvalidDateException {
+    public Deadline withEdits(Map<String, String> edits) throws QuuException {
         requireSupportedEdits(edits, EDIT_FLAGS, EDIT_USAGE);
         String editedDescription = resolveEditedDescription(edits, EDIT_USAGE);
         String editedDeadline = edits.getOrDefault(FLAG_BY, deadline.toString());

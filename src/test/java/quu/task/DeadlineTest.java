@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import quu.exception.InvalidDateException;
 import quu.exception.MissingArgumentException;
+import quu.exception.QuuException;
+import quu.exception.UnsupportedEditException;
 
 /**
  * Tests {@link Deadline}'s date handling: friendly rendering, ISO storage, and rejection of
@@ -55,21 +57,21 @@ public class DeadlineTest {
     }
 
     @Test
-    public void withEdits_dueDateOnly_keepsTheDescription() throws MissingArgumentException, InvalidDateException {
+    public void withEdits_dueDateOnly_keepsTheDescription() throws QuuException {
         Deadline editedDeadline = new Deadline("return book", "2026-06-06").withEdits(Map.of("by", "2026-07-07"));
         assertEquals("[D][ ] return book (by: Jul 7 2026)", editedDeadline.toString());
     }
 
     @Test
-    public void withEdits_descriptionOnly_keepsTheDueDate() throws MissingArgumentException, InvalidDateException {
+    public void withEdits_descriptionOnly_keepsTheDueDate() throws QuuException {
         Deadline editedDeadline = new Deadline("return book", "2026-06-06")
                 .withEdits(Map.of(Task.KEY_DESCRIPTION, "return two books"));
         assertEquals("[D][ ] return two books (by: Jun 6 2026)", editedDeadline.toString());
     }
 
     @Test
-    public void withEdits_flagADeadlineDoesNotHave_throwsMissingArgument() {
-        assertThrows(MissingArgumentException.class, () ->
+    public void withEdits_flagADeadlineDoesNotHave_throwsUnsupportedEdit() {
+        assertThrows(UnsupportedEditException.class, () ->
                 new Deadline("return book", "2026-06-06").withEdits(Map.of("to", "2026-07-07")));
     }
 

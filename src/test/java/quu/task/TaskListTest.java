@@ -10,9 +10,9 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import quu.exception.MissingArgumentException;
 import quu.exception.QuuException;
 import quu.exception.TaskNotFoundException;
+import quu.exception.UnsupportedEditException;
 
 /**
  * Tests {@link TaskList}'s bookkeeping, its index bounds, and its keyword search.
@@ -172,7 +172,7 @@ public class TaskListTest {
     @Test
     public void editTask_flagTheTaskDoesNotHave_leavesListUnchanged() {
         TaskList taskList = listOf("read book");
-        assertThrows(MissingArgumentException.class, () -> taskList.editTask(1, Map.of("by", "2026-06-06")));
+        assertThrows(UnsupportedEditException.class, () -> taskList.editTask(1, Map.of("by", "2026-06-06")));
         assertEquals(1, taskList.getSize());
         assertEquals("[T][ ] read book", taskList.getTaskAt(0).toString());
     }

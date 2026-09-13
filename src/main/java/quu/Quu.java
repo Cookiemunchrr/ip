@@ -4,8 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
-import quu.exception.InvalidFileContents;
 import quu.exception.QuuException;
+import quu.exception.UnexpectedArgumentException;
 import quu.exception.UnknownCommandException;
 import quu.parser.Parser;
 import quu.storage.Storage;
@@ -25,6 +25,15 @@ public class Quu {
     private static final String NAME = "Quu";
     private static final String TASK_FILE = "./data/Quu.txt";
     private static final String EXIT_COMMAND = "bye";
+    private static final String LIST_COMMAND = "list";
+
+    /**
+     * The commands the chatbot understands, shown to the user when they type something
+     * else. Kept next to {@link #executeCommand(String[])} so that the two are read and
+     * edited together.
+     */
+    private static final String KNOWN_COMMANDS =
+            "todo, deadline, event, list, mark, unmark, edit, delete, find, bye";
 
     private final Ui ui = new Ui();
     private final Parser parser = new Parser();
@@ -57,10 +66,12 @@ public class Quu {
             loadedTasks = storage.readFile();
             message = "";
         } catch (FileNotFoundException e) {
+            // Not an error: the file is created on the first save.
             loadedTasks = new TaskList();
-            message = ui.getLoadingError(
-                    "File not found at this path, a new file will be created at " + filePath);
-        } catch (InvalidFileContents e) {
+            message = ui.getLoadingError("No save file yet. One will be created at " + filePath + ".");
+        } catch (QuuException e) {
+            // A corrupted file, or one the user has to fix themselves. Either way the
+            // session goes on with an empty list rather than refusing to start.
             loadedTasks = new TaskList();
             message = ui.getException(e);
         }
@@ -78,13 +89,17 @@ public class Quu {
      * @return the text to show the user
      */
     public String getResponse(String input) {
+        String[] parts = splitCommand(input);
+        assert parts.length > 0 : "splitting with a positive limit always yields at least the command word";
+
+        if (parts[0].isEmpty()) {
+            commandType = CommandType.ERROR;
+            return ui.getEmptyInput();
+        }
         if (isExitCommand(input)) {
             commandType = CommandType.NONE;
             return ui.getGoodbye();
         }
-
-        String[] parts = input.split(" ", 2);
-        assert parts.length > 0 : "splitting with a positive limit always yields at least the command word";
         try {
             String response = executeCommand(parts);
             try {
@@ -117,7 +132,24 @@ public class Quu {
      * @return true if the input is the exit command
      */
     public boolean isExitCommand(String input) {
-        return input.equals(EXIT_COMMAND);
+        String[] parts = splitCommand(input);
+        return parts.length == 1 && parts[0].equals(EXIT_COMMAND);
+    }
+
+    /**
+     * Splits one line of input into its command word and the rest of its arguments.
+     *
+     * <p>The command word is lowercased and surrounding whitespace is dropped, so that
+     * {@code TODO read book} and {@code "  list"} are understood as readily as the exact
+     * forms. Only the command word is normalised: a task description is kept as typed.
+     *
+     * @param input one line of user input, as typed
+     * @return the command word, followed by the arguments if there are any
+     */
+    private static String[] splitCommand(String input) {
+        String[] parts = input.trim().split("\\s+", 2);
+        parts[0] = parts[0].toLowerCase();
+        return parts;
     }
 
     /**
@@ -184,7 +216,9 @@ public class Quu {
      */
     private String executeCommand(String[] parts) throws QuuException {
         return switch (parts[0]) {
-            case "list" -> handleList();
+            case LIST_COMMAND -> handleList(parts);
+            // Reached only with arguments: a bare bye has already ended the session.
+            case EXIT_COMMAND -> throw new UnexpectedArgumentException(EXIT_COMMAND);
             case "mark" -> handleMark(parts);
             case "unmark" -> handleUnmark(parts);
             case "todo" -> handleAdd(parser.parseToDo(parts));
@@ -193,16 +227,22 @@ public class Quu {
             case "delete" -> handleDelete(parts);
             case "edit" -> handleEdit(parts);
             case "find" -> handleFind(parts);
-            default -> throw new UnknownCommandException(parts[0]);
+            default -> throw new UnknownCommandException(parts[0], KNOWN_COMMANDS);
         };
     }
 
     /**
      * Shows every task currently in the list.
      *
+     * @param parts the user input split into command and arguments
      * @return the numbered task list
+     * @throws UnexpectedArgumentException if anything was typed after the command
      */
-    private String handleList() {
+    private String handleList(String[] parts) throws UnexpectedArgumentException {
+        if (parts.length > 1) {
+            commandType = CommandType.ERROR;
+            throw new UnexpectedArgumentException(LIST_COMMAND);
+        }
         commandType = CommandType.LIST;
         return ui.getList(taskList);
     }

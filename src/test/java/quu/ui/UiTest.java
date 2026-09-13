@@ -62,8 +62,9 @@ public class UiTest {
     }
 
     @Test
-    public void getList_emptyList_returnsOnlyHeading() {
-        assertEquals("Here are the tasks in your list:", ui.getList(new TaskList()));
+    public void getList_emptyList_saysTheListIsEmptyAndHowToAdd() {
+        assertEquals("There are no tasks in your list yet. Add one with todo, deadline or event.",
+                ui.getList(new TaskList()));
     }
 
     @Test
@@ -87,7 +88,7 @@ public class UiTest {
     }
 
     @Test
-    public void getFound_emptyList_returnsOnlyHeading() {
-        assertEquals("Here are the matching tasks in your list:", ui.getFound(new TaskList()));
+    public void getFound_emptyList_saysNothingMatched() {
+        assertEquals("No tasks match that keyword.", ui.getFound(new TaskList()));
     }
 }

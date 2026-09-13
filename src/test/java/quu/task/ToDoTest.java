@@ -8,6 +8,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import quu.exception.MissingArgumentException;
+import quu.exception.QuuException;
+import quu.exception.UnsupportedEditException;
 
 /**
  * Tests how a {@link ToDo} renders itself and survives a trip through the save file format.
@@ -44,14 +46,14 @@ public class ToDoTest {
     }
 
     @Test
-    public void withEdits_newDescription_returnsEditedToDo() throws MissingArgumentException {
+    public void withEdits_newDescription_returnsEditedToDo() throws QuuException {
         ToDo editedToDo = new ToDo("borrow book").withEdits(Map.of(Task.KEY_DESCRIPTION, "borrow two books"));
         assertEquals("[T][ ] borrow two books", editedToDo.toString());
     }
 
     @Test
-    public void withEdits_flagAToDoDoesNotHave_throwsMissingArgument() {
-        assertThrows(MissingArgumentException.class, () ->
+    public void withEdits_flagAToDoDoesNotHave_throwsUnsupportedEdit() {
+        assertThrows(UnsupportedEditException.class, () ->
                 new ToDo("borrow book").withEdits(Map.of("by", "2026-06-06")));
     }
 
