@@ -5,6 +5,7 @@ import java.util.Set;
 
 import quu.exception.MissingArgumentException;
 import quu.exception.QuuException;
+import quu.exception.UnsupportedEditException;
 
 /**
  * A single item in the task list.
@@ -92,14 +93,14 @@ public class Task {
      * @param edits the requested edits, as passed to {@link #withEdits(Map)}
      * @param supportedFlags the flag names this kind of task accepts, without their slashes
      * @param usage the expected form of the command, shown to the user on failure
-     * @throws MissingArgumentException if an edit names an unsupported flag
+     * @throws UnsupportedEditException if an edit names an unsupported flag
      */
     protected void requireSupportedEdits(Map<String, String> edits, Set<String> supportedFlags, String usage)
-            throws MissingArgumentException {
+            throws UnsupportedEditException {
         for (String editKey : edits.keySet()) {
             boolean isSupported = editKey.equals(KEY_DESCRIPTION) || supportedFlags.contains(editKey);
             if (!isSupported) {
-                throw new MissingArgumentException(usage);
+                throw new UnsupportedEditException(editKey, usage);
             }
         }
     }

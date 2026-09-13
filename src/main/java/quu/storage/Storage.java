@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 import quu.exception.InvalidFileContents;
 import quu.exception.QuuException;
-import quu.exception.UnknownCommandException;
+import quu.exception.SaveFileException;
 import quu.task.Deadline;
 import quu.task.Event;
 import quu.task.Task;
@@ -40,9 +40,11 @@ public class Storage {
      * @return the tasks the file holds, in file order
      * @throws FileNotFoundException if the save file does not exist yet
      * @throws InvalidFileContents if any line cannot be understood
+     * @throws SaveFileException if the path cannot be used as a save file at all
      */
-    public TaskList readFile() throws FileNotFoundException, InvalidFileContents {
+    public TaskList readFile() throws FileNotFoundException, InvalidFileContents, SaveFileException {
         File file = new File(filePath);
+        requireUsableSaveFile(file);
         TaskList taskList = new TaskList();
 
         try (Scanner scanner = new Scanner(file)) {
@@ -55,6 +57,27 @@ public class Storage {
             }
         }
         return taskList;
+    }
+
+    /**
+     * Rejects a path that exists but cannot serve as a save file.
+     *
+     * <p>Both cases would otherwise surface as {@link FileNotFoundException}, which the
+     * caller reasonably reads as "no save file yet" and reports as one that will be created.
+     * Neither is true here, and the user has to act before a save can succeed.
+     *
+     * @param file the save file named by this store
+     * @throws SaveFileException if the path is a folder, or names an unreadable file
+     */
+    private void requireUsableSaveFile(File file) throws SaveFileException {
+        if (file.isDirectory()) {
+            throw new SaveFileException(filePath + " is a folder, not a file."
+                    + " Move or rename it, then start Quu again.");
+        }
+        if (file.exists() && !file.canRead()) {
+            throw new SaveFileException("Cannot read " + filePath + "."
+                    + " Check the file's permissions, then start Quu again.");
+        }
     }
 
     /**
@@ -97,7 +120,7 @@ public class Storage {
             case "T" -> ToDo.fromFileString(fields);
             case "D" -> Deadline.fromFileString(fields);
             case "E" -> Event.fromFileString(fields);
-            default -> throw new UnknownCommandException(fields[0]);
+            default -> throw new InvalidFileContents("Unknown task type: " + fields[0]);
         };
     }
 
@@ -142,8 +165,8 @@ public class Storage {
     public void writeFile(TaskList taskList) throws IOException {
         File f = new File(filePath);
         File dir = f.getParentFile();
-        if (dir != null && !dir.exists()) {
-            dir.mkdirs();
+        if (dir != null && !dir.exists() && !dir.mkdirs()) {
+            throw new IOException("Could not create the folder " + dir + " for the save file");
         }
         try (FileWriter fw = new FileWriter(f)) { // creates the file if absent, truncates if present
             for (int i = 0; i < taskList.getSize(); i++) {

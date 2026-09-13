@@ -12,6 +12,7 @@ import quu.exception.InvalidDateException;
 import quu.exception.InvalidDurationException;
 import quu.exception.MissingArgumentException;
 import quu.exception.QuuException;
+import quu.exception.UnsupportedEditException;
 
 /**
  * Tests {@link Event}'s rendering of its two dates and its rejection of a backwards duration.
@@ -82,8 +83,8 @@ public class EventTest {
     }
 
     @Test
-    public void withEdits_flagAnEventDoesNotHave_throwsMissingArgument() {
-        assertThrows(MissingArgumentException.class, () ->
+    public void withEdits_flagAnEventDoesNotHave_throwsUnsupportedEdit() {
+        assertThrows(UnsupportedEditException.class, () ->
                 new Event("project meeting", "2026-08-06", "2026-08-08").withEdits(Map.of("by", "2026-08-10")));
     }
 

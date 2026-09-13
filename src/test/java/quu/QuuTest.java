@@ -138,6 +138,88 @@ public class QuuTest {
     }
 
     @Test
+    public void getResponse_mixedCaseCommand_isUnderstood() {
+        quu.getResponse("TODO read book");
+        assertEquals(CommandType.ADD, quu.getCommandType());
+    }
+
+    @Test
+    public void getResponse_commandPaddedWithWhitespace_isUnderstood() {
+        quu.getResponse("todo read book");
+        quu.getResponse("   LiSt   ");
+        assertEquals(CommandType.LIST, quu.getCommandType());
+    }
+
+    @Test
+    public void getResponse_argumentsKeepTheirCase_whenTheCommandIsNormalised() {
+        quu.getResponse("TODO Read Book");
+        assertTrue(quu.getResponse("list").contains("Read Book"));
+    }
+
+    @Test
+    public void getResponse_blankInput_asksForACommand() {
+        String reply = quu.getResponse("   ");
+        assertEquals(CommandType.ERROR, quu.getCommandType());
+        assertTrue(reply.startsWith("Please type a command"));
+    }
+
+    @Test
+    public void getResponse_unknownCommand_listsTheCommandsItUnderstands() {
+        String reply = quu.getResponse("lst");
+        assertEquals(CommandType.ERROR, quu.getCommandType());
+        assertTrue(reply.contains("\"lst\""));
+        assertTrue(reply.contains("todo"));
+        assertTrue(reply.contains("deadline"));
+    }
+
+    @Test
+    public void getResponse_listWithArguments_reportsThatListTakesNone() {
+        String reply = quu.getResponse("list all");
+        assertEquals(CommandType.ERROR, quu.getCommandType());
+        assertEquals("list takes no arguments. Just type: list", reply);
+    }
+
+    @Test
+    public void getResponse_exitCommandWithArguments_reportsThatByeTakesNone() {
+        String reply = quu.getResponse("bye now");
+        assertEquals(CommandType.ERROR, quu.getCommandType());
+        assertEquals("bye takes no arguments. Just type: bye", reply);
+    }
+
+    @Test
+    public void getResponse_emptyList_saysSoRatherThanShowingABareHeading() {
+        assertEquals("There are no tasks in your list yet. Add one with todo, deadline or event.",
+                quu.getResponse("list"));
+    }
+
+    @Test
+    public void getResponse_searchWithNoMatches_saysNothingMatched() {
+        quu.getResponse("todo read book");
+        assertEquals("No tasks match that keyword.", quu.getResponse("find zzzzz"));
+    }
+
+    @Test
+    public void getResponse_taskNumberPastTheEnd_namesTheRangeThatWouldWork() {
+        quu.getResponse("todo read book");
+        String reply = quu.getResponse("mark 99");
+        assertEquals(CommandType.ERROR, quu.getCommandType());
+        assertTrue(reply.contains("numbered 1 to 1"));
+    }
+
+    @Test
+    public void getResponse_editFlagTheTaskDoesNotHave_namesTheFlag() {
+        quu.getResponse("todo read book");
+        String reply = quu.getResponse("edit 1 /by 2026-01-01");
+        assertEquals(CommandType.ERROR, quu.getCommandType());
+        assertTrue(reply.contains("/by"));
+    }
+
+    @Test
+    public void isExitCommand_mixedCaseBye_returnsTrue() {
+        assertTrue(quu.isExitCommand("  BYE "));
+    }
+
+    @Test
     public void isExitCommand_byeAlone_returnsTrue() {
         assertTrue(quu.isExitCommand("bye"));
     }
@@ -149,6 +231,8 @@ public class QuuTest {
 
     @Test
     public void getLoadMessage_saveFileNotYetCreated_explainsItWillBeCreated() {
-        assertTrue(quu.getLoadMessage().contains("new file will be created"));
+        String message = quu.getLoadMessage();
+        assertTrue(message.contains("No save file yet"));
+        assertTrue(message.contains("quu_test.txt"));
     }
 }

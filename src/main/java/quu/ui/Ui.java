@@ -97,6 +97,9 @@ public class Ui {
      * @return the heading followed by the numbered tasks
      */
     public String getList(TaskList taskList) {
+        if (taskList.getSize() == 0) {
+            return "There are no tasks in your list yet. Add one with todo, deadline or event.";
+        }
         return "Here are the tasks in your list:" + buildNumberedList(taskList);
     }
 
@@ -107,7 +110,19 @@ public class Ui {
      * @return the heading followed by the numbered tasks
      */
     public String getFound(TaskList taskList) {
+        if (taskList.getSize() == 0) {
+            return "No tasks match that keyword.";
+        }
         return "Here are the matching tasks in your list:" + buildNumberedList(taskList);
+    }
+
+    /**
+     * Returns the prompt shown when the user sends nothing at all.
+     *
+     * @return the prompt
+     */
+    public String getEmptyInput() {
+        return "Please type a command. Type list to see your tasks.";
     }
 
     /**
