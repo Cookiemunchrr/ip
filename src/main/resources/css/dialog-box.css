@@ -12,6 +12,7 @@
     -fx-padding: 10px 14px;
     -fx-font-size: 14px;
     -fx-text-fill: -quu-surface;
+    -fx-font-smoothing-type: lcd;
     -fx-line-spacing: 2px;
 }
 
@@ -31,7 +32,7 @@
  * declared last.
  */
 .add-label {
-    -fx-border-color: #2a9d8f;
+    -fx-border-color: #1f7a6e;
     -fx-background-color: #f1fbf9;
 }
 

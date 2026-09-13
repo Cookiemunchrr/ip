@@ -11,9 +11,9 @@
     -quu-line-strong: #c8ced6;
     -quu-text: #22303c;
     -quu-muted: #6b7885;
-    -quu-accent: #2a9d8f;
-    -quu-accent-dark: #218077;
-    -quu-accent-darker: #1a655e;
+    -quu-accent: #1f7a6e;
+    -quu-accent-dark: #19655c;
+    -quu-accent-darker: #134d46;
 
     -fx-background-color: -quu-bg;
     -fx-font-family: "Helvetica Neue", "Segoe UI", Arial, sans-serif;
@@ -29,6 +29,7 @@
     -fx-font-size: 14px;
     -fx-text-fill: -quu-text;
     -fx-prompt-text-fill: -quu-muted;
+    -fx-font-smoothing-type: lcd;
 }
 
 .text-field:focused {
@@ -42,6 +43,7 @@
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-text-fill: -quu-surface;
+    -fx-font-smoothing-type: lcd;
     -fx-cursor: hand;
 }
 
