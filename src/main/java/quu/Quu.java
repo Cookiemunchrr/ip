@@ -28,18 +28,29 @@ public class Quu {
 
     private final Ui ui = new Ui();
     private final Parser parser = new Parser();
-    private final Storage storage = new Storage(TASK_FILE);
+    private final Storage storage;
     private final TaskList taskList;
     private final String loadMessage;
     private CommandType commandType = CommandType.NONE;
 
     /**
-     * Creates a chatbot whose task list is loaded from disk.
+     * Creates a chatbot whose task list is loaded from the default save file.
+     */
+    public Quu() {
+        this(TASK_FILE);
+    }
+
+    /**
+     * Creates a chatbot whose task list is loaded from the named save file.
      *
      * <p>A missing or corrupted save file is not fatal. The session starts with an empty
      * list, and the reason is retained so that the front end can show it at startup.
+     *
+     * @param filePath path of the save file, which need not exist yet
      */
-    public Quu() {
+    public Quu(String filePath) {
+        storage = new Storage(filePath);
+
         TaskList loadedTasks;
         String message;
         try {
@@ -47,7 +58,8 @@ public class Quu {
             message = "";
         } catch (FileNotFoundException e) {
             loadedTasks = new TaskList();
-            message = ui.getLoadingError("File not found at this path, a new file will be created at " + TASK_FILE);
+            message = ui.getLoadingError(
+                    "File not found at this path, a new file will be created at " + filePath);
         } catch (InvalidFileContents e) {
             loadedTasks = new TaskList();
             message = ui.getException(e);
@@ -67,6 +79,7 @@ public class Quu {
      */
     public String getResponse(String input) {
         if (isExitCommand(input)) {
+            commandType = CommandType.NONE;
             return ui.getGoodbye();
         }
 
