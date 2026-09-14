@@ -16,7 +16,13 @@
     -quu-accent-darker: #134d46;
 
     -fx-background-color: -quu-bg;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", Arial, sans-serif;
+    /*
+     * The JavaFX logical family, which maps to the platform UI font. Naming a real
+     * family here is a trap: "Helvetica Neue" resolves to its UltraLight face, which
+     * is what made every reply that is not bold look washed out. A -fx-font-weight of
+     * normal does not override that; only changing the family does.
+     */
+    -fx-font-family: System;
 }
 
 .text-field {
