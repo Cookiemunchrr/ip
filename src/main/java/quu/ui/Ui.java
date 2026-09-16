@@ -44,8 +44,8 @@ public class Ui {
      * @return the confirmation message
      */
     public String getAdded(Task task, int size) {
-        return String.format("Got it. I've added this task:%n  %s%nNow you have %d tasks in the list.",
-                task, size);
+        return String.format("Got it. I've added this task:%n  %s%nNow you have %s in the list.",
+                task, describeCount(size));
     }
 
     /**
@@ -56,8 +56,8 @@ public class Ui {
      * @return the confirmation message
      */
     public String getRemoved(Task task, int size) {
-        return String.format("Noted. I've removed this task:%n %s%nNow you have %d tasks in the list.",
-                task, size);
+        return String.format("Noted. I've removed this task:%n %s%nNow you have %s in the list.",
+                task, describeCount(size));
     }
 
     /**
@@ -162,6 +162,17 @@ public class Ui {
      */
     public String getGoodbye() {
         return "Bye. Hope to see you again soon!";
+    }
+
+    /**
+     * Returns a count of tasks with the noun agreeing with it, such as {@code 1 task} or
+     * {@code 2 tasks}.
+     *
+     * @param size the number of tasks to describe
+     * @return the count and its noun
+     */
+    private String describeCount(int size) {
+        return String.format("%d task%s", size, size == 1 ? "" : "s");
     }
 
     /**

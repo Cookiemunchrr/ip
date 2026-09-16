@@ -1,6 +1,7 @@
 package quu.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,17 @@ public class UiTest {
     @Test
     public void getAdded_taskGiven_returnsTaskAndNewCount() {
         assertEquals(String.format("Got it. I've added this task:%n  [T][ ] read book%n"
-                + "Now you have 1 tasks in the list."), ui.getAdded(new ToDo("read book"), 1));
+                + "Now you have 1 task in the list."), ui.getAdded(new ToDo("read book"), 1));
+    }
+
+    @Test
+    public void getAdded_severalTasks_countReadsAsPlural() {
+        assertTrue(ui.getAdded(new ToDo("read book"), 2).endsWith("Now you have 2 tasks in the list."));
+    }
+
+    @Test
+    public void getRemoved_oneTaskLeft_countReadsAsSingular() {
+        assertTrue(ui.getRemoved(new ToDo("read book"), 1).endsWith("Now you have 1 task in the list."));
     }
 
     @Test
