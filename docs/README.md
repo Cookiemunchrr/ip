@@ -207,9 +207,12 @@ Errors appear in a red-edged bubble so they are easy to pick out of the conversa
 ## Where your tasks are kept
 
 Quu saves to `data/Quu.txt`, in the folder you ran it from. The file is plain text, one
-task per line, so you can read it. Editing it by hand is possible but risky: if Quu
-cannot understand a line when it next starts, it tells you which line is at fault and
-begins with an empty list.
+task per line, so you can read it.
+
+If Quu cannot understand a line when it next starts, it tells you which line is at fault,
+renames the file to `data/Quu.txt.corrupted`, and begins with an empty list. Your original
+file is left exactly as it was, so you can repair it and copy the good lines back. A
+backup is never overwritten by a later one: Quu numbers them instead.
 
 If the file is missing, Quu simply creates it the first time you add a task.
 
@@ -220,14 +223,8 @@ Copy `data/Quu.txt` into a `data` folder next to `Quu.jar` on the other computer
 reads it the next time it starts.
 
 **Can I edit the save file by hand?**
-You can, it is plain text. Read the known issue below first.
-
-## Known issues
-
-- **A damaged save file is not backed up.** If Quu cannot read a line in `data/Quu.txt`
-  it tells you which line is at fault and starts with an empty list. The next command
-  that changes anything overwrites the file, so any tasks that were still readable are
-  lost. Until this is fixed, copy `data/Quu.txt` somewhere safe before editing it by hand.
+You can, it is plain text. If you get a line wrong, Quu will not lose your work: it moves
+the file aside instead of overwriting it. See below.
 
 ## Command summary
 

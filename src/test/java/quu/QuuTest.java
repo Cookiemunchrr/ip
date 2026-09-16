@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +30,38 @@ public class QuuTest {
     @BeforeEach
     public void setUp() {
         quu = new Quu(tempDir.resolve("quu_test.txt").toString());
+    }
+
+    @Test
+    public void constructor_damagedSaveFile_keepsItFromBeingOverwritten() throws IOException {
+        Path save = tempDir.resolve("quu_test.txt");
+        Files.writeString(save, "T | 0 | keep me" + System.lineSeparator()
+                + "nonsense line" + System.lineSeparator());
+
+        Quu session = new Quu(save.toString());
+        assertTrue(session.getLoadMessage().contains("moved to"));
+
+        // The command that used to write an empty list over the damaged file.
+        session.getResponse("todo something else");
+
+        Path backup = tempDir.resolve("quu_test.txt.corrupted");
+        assertTrue(Files.exists(backup), "the damaged file should have been kept");
+        assertTrue(Files.readString(backup).contains("keep me"),
+                "the readable tasks should still be in the backup");
+    }
+
+    @Test
+    public void constructor_damagedSaveFileTwice_doesNotOverwriteTheFirstBackup() throws IOException {
+        Path save = tempDir.resolve("quu_test.txt");
+
+        Files.writeString(save, "first broken file" + System.lineSeparator());
+        new Quu(save.toString());
+
+        Files.writeString(save, "second broken file" + System.lineSeparator());
+        new Quu(save.toString());
+
+        assertTrue(Files.readString(tempDir.resolve("quu_test.txt.corrupted")).contains("first"));
+        assertTrue(Files.readString(tempDir.resolve("quu_test.txt.corrupted.2")).contains("second"));
     }
 
     @Test

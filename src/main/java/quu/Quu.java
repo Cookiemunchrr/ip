@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
+import quu.exception.InvalidFileContents;
 import quu.exception.QuuException;
 import quu.exception.UnexpectedArgumentException;
 import quu.exception.UnknownCommandException;
@@ -69,14 +70,36 @@ public class Quu {
             // Not an error: the file is created on the first save.
             loadedTasks = new TaskList();
             message = ui.getLoadingError("No save file yet. One will be created at " + filePath + ".");
+        } catch (InvalidFileContents e) {
+            loadedTasks = new TaskList();
+            message = ui.getException(e) + System.lineSeparator() + setAsideDamagedFile();
         } catch (QuuException e) {
-            // A corrupted file, or one the user has to fix themselves. Either way the
-            // session goes on with an empty list rather than refusing to start.
+            // A save file the user has to fix themselves. The session goes on with an
+            // empty list rather than refusing to start.
             loadedTasks = new TaskList();
             message = ui.getException(e);
         }
         taskList = loadedTasks;
         loadMessage = message;
+    }
+
+    /**
+     * Moves the damaged save file aside and returns what to tell the user about it.
+     *
+     * <p>Called only when the file could not be read. Doing this during construction, rather
+     * than when the first save happens, means there is no window in which a command could
+     * overwrite the file.
+     *
+     * @return the explanation to append to the load message
+     */
+    private String setAsideDamagedFile() {
+        try {
+            return ui.getLoadingError("The damaged file has been moved to "
+                    + storage.setAsideDamagedFile() + ", so nothing in it is lost.");
+        } catch (IOException e) {
+            return ui.getSaveError("The damaged file could not be moved aside: " + e.getMessage()
+                    + ". Copy it somewhere safe before adding any tasks, or it will be overwritten.");
+        }
     }
 
     /**

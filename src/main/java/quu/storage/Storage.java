@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Scanner;
 
 import quu.exception.InvalidFileContents;
@@ -152,6 +154,29 @@ public class Storage {
      */
     private InvalidFileContents corruptedLine(String line) {
         return new InvalidFileContents("Corrupted line in " + filePath + ": " + line);
+    }
+
+    /**
+     * Moves a damaged save file aside, and returns where it went.
+     *
+     * <p>A file Quu cannot read leaves the session with an empty list. The first command
+     * that changes anything would then write that empty list over the only copy of the
+     * user's tasks, so the lines that were still readable would be lost. Renaming the file
+     * first means the next save creates a new one and the damaged copy survives untouched.
+     *
+     * <p>An existing backup is never overwritten; a number is appended instead.
+     *
+     * @return the path the damaged file was moved to
+     * @throws IOException if the file cannot be moved
+     */
+    public String setAsideDamagedFile() throws IOException {
+        Path damaged = Path.of(filePath);
+        Path backup = Path.of(filePath + ".corrupted");
+        for (int attempt = 2; Files.exists(backup); attempt++) {
+            backup = Path.of(filePath + ".corrupted." + attempt);
+        }
+        Files.move(damaged, backup);
+        return backup.toString();
     }
 
     /**
