@@ -1,0 +1,5 @@
+# Titles the GitHub Pages site. Without this, the theme falls back to the repository
+# name, so the product website is headed "ip" rather than the product's name.
+title: Quu
+description: A desktop chatbot that keeps track of your tasks
+show_downloads: false
