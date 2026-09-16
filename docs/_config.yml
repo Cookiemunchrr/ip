@@ -2,4 +2,5 @@
 # name, so the product website is headed "ip" rather than the product's name.
 title: Quu
 description: A desktop chatbot that keeps track of your tasks
+theme: jekyll-theme-cayman
 show_downloads: false

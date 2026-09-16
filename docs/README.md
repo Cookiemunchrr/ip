@@ -24,6 +24,11 @@ Quu is built for people who type faster than they click.
 
 ## Things worth knowing
 
+- **Words in angle brackets are yours to fill in.** In `todo <task>`, replace `<task>`
+  with what you actually want to do, as in `todo read book`.
+- **Anything in square brackets is optional.** In
+  `edit <task number> [<new description>] [/<detail> <value>]` you can give a new
+  description, a detail, or both.
 - **Capitals don't matter for commands.** `todo`, `Todo` and `TODO` all work. What you
   type *after* the command is kept exactly as you wrote it, so `todo Read Book` keeps its
   capitals.
@@ -207,6 +212,22 @@ cannot understand a line when it next starts, it tells you which line is at faul
 begins with an empty list.
 
 If the file is missing, Quu simply creates it the first time you add a task.
+
+## FAQ
+
+**How do I move my tasks to another computer?**
+Copy `data/Quu.txt` into a `data` folder next to `Quu.jar` on the other computer. Quu
+reads it the next time it starts.
+
+**Can I edit the save file by hand?**
+You can, it is plain text. Read the known issue below first.
+
+## Known issues
+
+- **A damaged save file is not backed up.** If Quu cannot read a line in `data/Quu.txt`
+  it tells you which line is at fault and starts with an empty list. The next command
+  that changes anything overwrites the file, so any tasks that were still readable are
+  lost. Until this is fixed, copy `data/Quu.txt` somewhere safe before editing it by hand.
 
 ## Command summary
 
